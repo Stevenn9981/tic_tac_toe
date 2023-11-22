@@ -83,6 +83,7 @@ def train_game_agent():
 
     play_policy1 = PlayPolicy(agent1.policy)
     play_policy2 = PlayPolicy(agent2.policy)
+    random_policy = create_random_policy()
 
     replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
         data_spec=agent1.collect_data_spec,
