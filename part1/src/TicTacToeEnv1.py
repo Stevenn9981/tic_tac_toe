@@ -1,9 +1,17 @@
-import gym
+import random
+import os
+
+import pygame as pg
+from tf_agents.environments import py_environment
+from tf_agents.specs import array_spec
+from tf_agents.trajectories import time_step as ts
+
 import numpy as np
-import math
 from tabulate import tabulate
 
 from typing import Tuple, List
+
+from part1.src.settings import *
 
 
 class TicTacToeEnv1(py_environment.PyEnvironment):
@@ -145,7 +153,7 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
             cnt_non_act_three, cnt_act_three = self.detect_three(row, col)
 
             reward += (
-                        cnt_act_two * REWARD_ACTIVE_TWO + cnt_non_act_three * REWARD_NONACT_THREE + cnt_act_three * REWARD_ACTIVE_THREE)
+                    cnt_act_two * REWARD_ACTIVE_TWO + cnt_non_act_three * REWARD_NONACT_THREE + cnt_act_three * REWARD_ACTIVE_THREE)
 
             action = row * BOARD_SIZE + col
             self.latest_action = action
@@ -293,7 +301,7 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         assert 0 <= col < BOARD_SIZE
         return [row, col]
 
-    def render(self, render_mode="rgb_array") -> None:
+    def render(self, render_mode="rgb_array") -> np.ndarray:
         """Render the board
         Print a string that shows the current board, if render_mode == human,
         Return the RGB array of a figure which shows the current board.
@@ -336,15 +344,15 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
             pg.draw.line(self.screen, line_color, (0, height / BOARD_SIZE * i), (width, height / BOARD_SIZE * i), 2)
         pg.display.flip()
 
-        lastest_row, latest_col = -1, -1
+        latest_row, latest_col = -1, -1
         if self.latest_action:
-            lastest_row, latest_col = self.decode_action(self.latest_action)
+            latest_row, latest_col = self.decode_action(self.latest_action)
 
         # drawing noughts and crosses
         for i in range(BOARD_SIZE):
             for j in range(BOARD_SIZE):
                 color = line_color
-                if lastest_row == i and latest_col == j:
+                if latest_row == i and latest_col == j:
                     color = red
                 if self.board[i, j] == 1:  # Draw crosses
                     pg.draw.lines(self.screen, color, True, [(width / BOARD_SIZE * (j + 0.5) - 10,

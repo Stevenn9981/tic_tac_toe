@@ -1,3 +1,10 @@
+import copy
+import tensorflow as tf
+
+from tf_agents.trajectories import PolicyStep
+import numpy as np
+
+
 class PlayPolicy():
     def __init__(self, policy):
         self.policy = policy
@@ -22,7 +29,7 @@ class PlayPolicy():
         return action_step
 
     def drop_here_will_win(self, py_env, action, color):
-        # check if four equal stones are aligned (horizontal, verical or diagonal)
+        # check if four equal stones are aligned (horizontal, vertical or diagonal)
         directions = [[0, 1], [1, 0], [1, 1], [1, -1]]
 
         current_board = copy.deepcopy(py_env.board)

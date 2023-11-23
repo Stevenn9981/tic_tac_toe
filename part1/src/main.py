@@ -1,3 +1,21 @@
+from part1.src.PlayPolicy import PlayPolicy
+from part1.src.TicTacToeEnv1 import TicTacToeEnv1
+from part1.src.settings import *
+from part1.src.utils import *
+
+import os
+import tensorflow as tf
+
+from tf_agents.agents.dqn import dqn_agent
+from tf_agents.environments import tf_py_environment
+from tf_agents.networks import sequential
+from tf_agents.policies import policy_saver
+from tf_agents.policies import random_tf_policy
+from tf_agents.replay_buffers import tf_uniform_replay_buffer
+from tf_agents.specs import tensor_spec
+from tf_agents.utils import common
+
+
 def show_random_policy():
     py_env = TicTacToeEnv1()
     tf_env = tf_py_environment.TFPyEnvironment(py_env)
@@ -10,9 +28,9 @@ def observation_and_action_constraint_splitter(obs):
     return obs['state'], obs['legal_moves']
 
 
-def create_q_net():
+def create_q_net(train_env):
     conv_layer_params = [32, 64, 128]
-    action_tensor_spec = tensor_spec.from_spec(tf_env.action_spec())
+    action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
     num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 
     # Define a helper function to create Conv layers configured with the right
@@ -50,7 +68,7 @@ def create_q_net():
 
 def create_dqn_agent(train_env):
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
-    q_net = create_q_net()
+    q_net = create_q_net(train_env)
     agent = dqn_agent.DqnAgent(
         train_env.time_step_spec(),
         train_env.action_spec(),
@@ -65,13 +83,12 @@ def create_dqn_agent(train_env):
     return agent
 
 
-def create_random_policy():
+def create_random_policy(train_env):
     return random_tf_policy.RandomTFPolicy(train_env.time_step_spec(), train_env.action_spec(),
                                            observation_and_action_constraint_splitter=observation_and_action_constraint_splitter)
 
 
 def train_game_agent():
-    tempdir = "./"
     train_py_env = TicTacToeEnv1(train=True)
     eval_py_env = TicTacToeEnv1()
 
@@ -81,9 +98,8 @@ def train_game_agent():
     agent1 = create_dqn_agent(train_env)
     agent2 = create_dqn_agent(train_env)
 
-    play_policy1 = PlayPolicy(agent1.policy)
-    play_policy2 = PlayPolicy(agent2.policy)
-    random_policy = create_random_policy()
+    play_policy = PlayPolicy(agent1.policy)
+    random_policy = create_random_policy(train_env)
 
     replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
         data_spec=agent1.collect_data_spec,
@@ -98,8 +114,8 @@ def train_game_agent():
         num_steps=n_step_update + 1).prefetch(3)
     iterator = iter(dataset)
 
-    policy_dir = os.path.join(tempdir, 'play_policy')
-    tf_policy_saver = policy_saver.PolicySaver(play_policy1.policy)
+    policy_dir = os.path.join(tempdir, 'play_policy_part1')
+    tf_policy_saver = policy_saver.PolicySaver(play_policy.policy)
 
     # (Optional) Optimize by wrapping some of the code in a graph using TF function.
     agent1.train = common.function(agent1.train)
@@ -108,13 +124,13 @@ def train_game_agent():
     # Reset the train step.
     agent1.train_step_counter.assign(0)
     agent2.train_step_counter.assign(0)
-    policy_win_rate = compute_avg_win_battle(eval_env, play_policy1, random_policy, num_eval_episodes)[0]
+    policy_win_rate = compute_avg_win_battle(eval_env, play_policy, random_policy, num_eval_episodes)[0]
     print('Before training: 1_win = {0}'.format(policy_win_rate))
 
     bst = 0
 
     # Reset the environment.
-    time_step = train_env.reset()
+    train_env.reset()
 
     x, y, change_flag = agent1, agent2, False
     for idx in range(num_iterations):
@@ -128,7 +144,7 @@ def train_game_agent():
         experience, unused_info = next(iterator)
         train_loss1 = agent1.train(experience).loss
         experience, unused_info = next(iterator)
-        train_loss2 = agent2.train(experience).loss
+        agent2.train(experience)
 
         step = agent1.train_step_counter.numpy()
 
@@ -136,18 +152,29 @@ def train_game_agent():
             print('step = {0}: loss1 = {1}'.format(step, train_loss1))
 
         if step % eval_interval == 0:
-            policy_win_rate1 = compute_avg_win_battle(eval_env, play_policy1, random_policy, num_eval_episodes)[0]
-            policy_win_rate2 = compute_avg_win_battle(eval_env, random_policy, play_policy1, num_eval_episodes)[1]
-            battle_win_rate = compute_avg_win_battle(eval_env, play_policy2, play_policy1, 10)
-            print('Evaluation (step = {0}): offense_win = {1}, defense_win = {2}, battle_result = {3}'.format(step,
-                                                                                                              policy_win_rate1,
-                                                                                                              policy_win_rate2,
-                                                                                                              battle_win_rate))
+            policy_win_rate1 = compute_avg_win_battle(eval_env, play_policy, random_policy, num_eval_episodes)[0]
+            policy_win_rate2 = compute_avg_win_battle(eval_env, random_policy, play_policy, num_eval_episodes)[1]
+            print('Evaluation (step = {0}): offense_win = {1}, defense_win = {2}'.format(step,
+                                                                                         policy_win_rate1,
+                                                                                         policy_win_rate2,
+                                                                                         ))
             policy_win_rate = (policy_win_rate1 + policy_win_rate2) / 2
             if policy_win_rate >= bst:
                 bst = policy_win_rate
                 tf_policy_saver.save(policy_dir)
-                policy_zip_filename = create_zip_file(policy_dir, os.path.join(tempdir, 'exported_policy'))
+                create_zip_file(policy_dir, os.path.join(tempdir, 'exported_policy_part1'))
+
+
+def test_game_agent():
+    eval_py_env = TicTacToeEnv1()
+    eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
+    random_policy = random_tf_policy.RandomTFPolicy(eval_env.time_step_spec(), eval_env.action_spec(),
+                                                    observation_and_action_constraint_splitter=observation_and_action_constraint_splitter)
+    policy_dir = os.path.join(tempdir, 'play_policy_part1')
+
+    play_policy = PlayPolicy(tf.saved_model.load(policy_dir))
+    create_policy_battle_video(eval_env, play_policy, random_policy, 'trained-agent-1-with-random')
+    create_policy_battle_video(eval_env, play_policy, play_policy, 'trained-agent-1-self-battle')
 
 
 if __name__ == '__main__':

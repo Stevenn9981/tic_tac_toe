@@ -1,3 +1,10 @@
+import base64
+import imageio
+import IPython
+import shutil
+from tf_agents.trajectories import trajectory
+
+
 def embed_mp4(filename):
     """Embeds an mp4 file in the notebook."""
     video = open(filename, 'rb').read()
@@ -103,32 +110,33 @@ def compute_avg_win_battle(environment, policy1, policy2, num_episodes=10):
     avg_return_2 = total_return_2 / num_episodes
     return [avg_return_1, avg_return_2]
 
+
 def collect_episode(environment, agent1, agent2, replay_buffer):
     time_step = environment.reset()
     trajs_1, trajs_2 = [], []
 
     while not time_step.is_last():
-      action_step = agent1.collect_policy.action(time_step)
-      next_time_step = environment.step(action_step.action)
-      traj1 = trajectory.from_transition(time_step, action_step, next_time_step)
-      trajs_1.append(traj1)
-      time_step = next_time_step
-
-      if not time_step.is_last():
-        action_step = agent2.collect_policy.action(time_step)
+        action_step = agent1.collect_policy.action(time_step)
         next_time_step = environment.step(action_step.action)
-        traj2 = trajectory.from_transition(time_step, action_step, next_time_step)
-        trajs_2.append(traj2)
+        traj1 = trajectory.from_transition(time_step, action_step, next_time_step)
+        trajs_1.append(traj1)
         time_step = next_time_step
+
+        if not time_step.is_last():
+            action_step = agent2.collect_policy.action(time_step)
+            next_time_step = environment.step(action_step.action)
+            traj2 = trajectory.from_transition(time_step, action_step, next_time_step)
+            trajs_2.append(traj2)
+            time_step = next_time_step
 
     change_flag = False
     # Modify the reward of each step according to the opponent's next step
-    if len(trajs_1) == len(trajs_2): # Player 2 won
+    if len(trajs_1) == len(trajs_2):  # Player 2 won
         for i in range(len(trajs_1) - 1):
             trajs_1[i] = trajs_1[i].replace(reward=trajs_1[i].reward - trajs_2[i].reward)
             trajs_2[i] = trajs_2[i].replace(reward=trajs_2[i].reward - trajs_1[i + 1].reward)
         trajs_1[-1] = trajs_1[-1].replace(reward=trajs_1[-1].reward - trajs_2[-1].reward)
-    else: # Player 1 won
+    else:  # Player 1 won
         change_flag = True
         for i in range(len(trajs_1) - 1):
             trajs_1[i] = trajs_1[i].replace(reward=trajs_1[i].reward - trajs_2[i].reward)
@@ -142,14 +150,6 @@ def collect_episode(environment, agent1, agent2, replay_buffer):
     # If the first player wins, then change the order in the next game.
     return change_flag
 
-for _ in range(initial_collect_episodes):
-    collect_episode(train_env, agent1, agent2, replay_buffer)
-
-dataset = replay_buffer.as_dataset(
-    num_parallel_calls=3, sample_batch_size=batch_size,
-    num_steps=n_step_update + 1).prefetch(3)
-iterator = iter(dataset)
-
 
 def create_zip_file(dirname, base_filename):
-  return shutil.make_archive(base_filename, 'zip', dirname)
+    return shutil.make_archive(base_filename, 'zip', dirname)
