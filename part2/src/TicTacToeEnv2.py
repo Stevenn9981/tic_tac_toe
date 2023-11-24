@@ -4,17 +4,19 @@ import os
 import pygame as pg
 from tf_agents.environments import py_environment
 from tf_agents.specs import array_spec
-from tf_agents.trajectories import time_step as ts, TimeStep
+from tf_agents.trajectories import time_step as ts
 
 import numpy as np
 from tabulate import tabulate
 
 from typing import Tuple, List
 
-from part1.src.settings import *
+from tf_agents.typing.types import TimeStep
+
+from part2.src.settings import *
 
 
-class TicTacToeEnv1(py_environment.PyEnvironment):
+class TicTacToeEnv2(py_environment.PyEnvironment):
     """
     Implementation of a TicTacToe Environment based on the instructions of Part 1, Question 1.
     """
@@ -25,7 +27,10 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         Args:
             train (bool): whether this is an environment for training.
         """
-        self.n_actions = BOARD_SIZE * BOARD_SIZE  # 9 * 9 grids to drop
+
+        self.ener_bin_len = 0.1
+        self.num_bin = int(1 / self.ener_bin_len) + 1
+        self.n_actions = BOARD_SIZE * BOARD_SIZE * self.num_bin  # 9 * 9 * 11 actions
 
         self._observation_spec = {
             'state': array_spec.BoundedArraySpec(shape=(BOARD_SIZE, BOARD_SIZE, 5), dtype=np.int_, minimum=0,
@@ -48,6 +53,26 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
     def get_result(self):
         return self.result
 
+    def _reset(self) -> TimeStep:
+        """
+        reset the board game and state
+        """
+        self.board: np.ndarray = np.zeros(
+            (self.fields_per_side, self.fields_per_side), dtype=int
+        )
+        self.current_player = 1
+        self.info = {"players": {1: {"energy": 10}, 2: {"energy": 10}}, "Occupied": set(),
+                     "legal_moves": np.ones((self.n_actions,), dtype=bool)}
+        self.latest_action = None
+
+        # 0 means not finished, 1 or 2 means the winner and 3 means draw
+        self.result = 0
+
+        # return self.decompose_board_to_state()
+        observations_and_legal_moves = {'state': self.decompose_board_to_state(),
+                                        'legal_moves': self.info["legal_moves"]}
+        return ts.restart(observations_and_legal_moves)
+
     def if_chess_nearby(self, row, col) -> bool:
         """
         Determine whether there are chess pieces in 2 squares around the given position (row, col)
@@ -66,25 +91,6 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
                         return True
         return False
 
-    def _reset(self) -> Tuple[np.ndarray, dict]:
-        """
-        reset the board game and state
-        """
-        self.board: np.ndarray = np.zeros(
-            (self.fields_per_side, self.fields_per_side), dtype=int
-        )
-        self.current_player = 1
-        self.info = {"Occupied": set(), "legal_moves": np.ones((self.n_actions,), dtype=bool)}
-        self.latest_action = None
-
-        # 0 means not finished, 1 or 2 means the winner and 3 means draw
-        self.result = 0
-
-        # return self.decompose_board_to_state()
-        observations_and_legal_moves = {'state': self.decompose_board_to_state(),
-                                        'legal_moves': self.info["legal_moves"]}
-        return ts.restart(observations_and_legal_moves)
-
     def decompose_board_to_state(self):
         """
         Our state is a 9x9x5 matrix.
@@ -99,7 +105,7 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         c_plays = (self.board == self.current_player) * 1
         l_play = np.zeros_like(self.board)
         if self.latest_action:
-            r, c = self.decode_action(self.latest_action)
+            r, c, _ = self.decode_action(self.latest_action)
             l_play[r, c] = 1
         if_first = np.full_like(self.board, (self.current_player == 1) * 1)
         adj_play = np.zeros_like(self.board)
@@ -109,11 +115,11 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
                     adj_play[row, col] = 1
         return np.stack([o_plays, c_plays, l_play, if_first, adj_play], axis=2)
 
-    def _step(self, action: int) -> TimeStep:
+    def _step(self, position: int) -> Tuple[np.ndarray, int, bool, dict]:
         """step function of the tictactoeEnv1
 
         Args:
-          action (int): integer between [0, 80], each representing a field on the board
+          position (int): integer between [0, 80], each representing a field on the board
 
         Returns:
           state (np.array): state of 2 players' history, 0 means no stone, 1 means stones placed by the corresponding player (shape: 9x9x2).
@@ -121,12 +127,13 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
           done (boolean): true, if the game is finished
           (dict): empty dict for future game related information
         """
-        action = int(action)
-        if not (0 <= action < self.n_actions):
-            raise ValueError(f"action '{action}' is not in action_space")
+        position = int(position)
+        if not (0 <= position < self.n_actions):
+            raise ValueError(f"action '{position}' is not in action_space")
 
         reward = REWARD_ALIVE
-        (row, col) = self.decode_action(action)
+        (row, col, ener) = self.decode_action(position)
+        energy_to_use = ener * self.ener_bin_len
 
         # If the agent/player does not choose an empty square, raise the ValueError.
         if self.board[row, col] != 0:
@@ -134,11 +141,14 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
                 raise ValueError('BORAD IS FULL!')
             raise ValueError('ERROR: Not A LEGAL MOVE (NOT EMPTY)')
 
-        # According to the game rules, randomly select an adjacent position with a probability of 1/16.
-        # Note that since this will bring some randomness to the training process, we disable this during training.
-        if not self.train:
-            if random.random() < 0.5:
-                row, col = self.choose_adj_pos(row, col)
+        # Check whether there is enough energy to use for the current player
+        if self.info["players"][self.current_player]["energy"] < energy_to_use:
+            energy_to_use = self.info["players"][self.current_player]["energy"]
+        self.info["players"][self.current_player]["energy"] -= energy_to_use
+
+        # randomly select an adjacent position with probability 1/8 * (8 / 9 - 6 / 9 * energy_to_use)
+        if random.random() < (1 - 1 / 9 - 6 / 9 * energy_to_use):
+            row, col = self.choose_adj_pos(row, col)
 
         # if len(self.info["Occupied"]) != 0 and not self.if_chess_nearby(row, col):
         #     reward += REWARD_NON_ADJ
@@ -154,10 +164,17 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
             reward += (
                     cnt_act_two * REWARD_ACTIVE_TWO + cnt_non_act_three * REWARD_NONACT_THREE + cnt_act_three * REWARD_ACTIVE_THREE)
 
-            action = row * BOARD_SIZE + col
-            self.latest_action = action
-            self.info["Occupied"].add(action)
-            self.info['legal_moves'][action] = False
+            position = row * BOARD_SIZE + col
+            num_places = BOARD_SIZE * BOARD_SIZE
+
+            self.latest_action = int(position + energy_to_use / self.ener_bin_len * num_places)
+            for i in range(self.num_bin):
+                action = position + i * num_places
+                self.info["Occupied"].add(action)
+                self.info['legal_moves'][action] = False
+        elif self.latest_action:
+            r, c, _ = self.decode_action(self.latest_action)
+            self.latest_action = int(r * BOARD_SIZE + c + energy_to_use / self.ener_bin_len * BOARD_SIZE * BOARD_SIZE)
 
         if win:
             self.result = self.current_player
@@ -294,10 +311,19 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         Returns:
             List[int, int]: a list with the [row, col] values
         """
-        col = action % BOARD_SIZE
-        row = action // BOARD_SIZE
+        action = np.clip(action, 0, self.n_actions)
+
+        num_places = BOARD_SIZE * BOARD_SIZE
+
+        board_position = action % num_places
+        energy = action // num_places
+
+        col = board_position % BOARD_SIZE
+        row = board_position // BOARD_SIZE
         assert 0 <= col < BOARD_SIZE
-        return [row, col]
+        assert 0 <= row < BOARD_SIZE
+        assert 0 <= energy < self.num_bin
+        return [row, col, energy]
 
     def render(self, render_mode="rgb_array") -> np.ndarray:
         """Render the board
@@ -330,7 +356,7 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
 
         # Set up the drawing window
         if self.screen is None:
-            self.screen = pg.display.set_mode([width + 16, height + 16])
+            self.screen = pg.display.set_mode([width + 272, height + 16])
 
         self.screen.fill(white)
         # drawing vertical lines
@@ -342,9 +368,9 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
             pg.draw.line(self.screen, line_color, (0, height / BOARD_SIZE * i), (width, height / BOARD_SIZE * i), 2)
         pg.display.flip()
 
-        latest_row, latest_col = -1, -1
+        latest_row, latest_col, latest_enr = -1, -1, 0
         if self.latest_action:
-            latest_row, latest_col = self.decode_action(self.latest_action)
+            latest_row, latest_col, latest_enr = self.decode_action(self.latest_action)
 
         # drawing noughts and crosses
         for i in range(BOARD_SIZE):
@@ -364,6 +390,24 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
                 elif self.board[i, j] == 2:  # Draw noughts
                     pg.draw.circle(self.screen, color,
                                    (width / BOARD_SIZE * (j + 0.5), height / BOARD_SIZE * (i + 0.5)), 12, 3)
+
+        # drawing the next energy points of two players
+        font1 = pg.font.Font(pg.font.get_default_font(), 16)
+        font2 = pg.font.Font(pg.font.get_default_font(), 14)
+
+        latest_player = self.current_player + 1 if self.current_player == 1 else 1
+        # now print the text
+        text_surface1 = font1.render('Energy Points:', True, pg.Color('black'))
+        text_surface2 = font2.render(f'Player 1: {self.info["players"][1]["energy"]:.2f}', True, pg.Color('black'))
+        text_surface3 = font2.render(f'Player 2: {self.info["players"][2]["energy"]:.2f}', True, pg.Color('black'))
+        self.screen.blit(text_surface1, dest=(width + 15, 0))
+        self.screen.blit(text_surface2, dest=(width + 15, 22))
+        self.screen.blit(text_surface3, dest=(width + 15, 42))
+
+        if latest_col >= 0 and latest_row >= 0:
+            text_surface4 = font2.render(f'Player {latest_player} used {latest_enr * self.ener_bin_len:.2f} points', True,
+                                         pg.Color('black'))
+            self.screen.blit(text_surface4, dest=(width + 15, 72))
 
         board = np.transpose(
             np.array(pg.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)

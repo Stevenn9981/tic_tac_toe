@@ -1,7 +1,7 @@
-from part1.src.PlayPolicy import PlayPolicy
-from part1.src.TicTacToeEnv1 import TicTacToeEnv1
-from part1.src.settings import *
-from part1.src.utils import *
+from part2.src.PlayPolicy import PlayPolicy
+from part2.src.TicTacToeEnv2 import TicTacToeEnv2
+from part2.src.settings import *
+from part2.src.utils import *
 
 import os
 import tensorflow as tf
@@ -17,11 +17,11 @@ from tf_agents.utils import common
 
 
 def show_random_policy():
-    py_env = TicTacToeEnv1()
+    py_env = TicTacToeEnv2()
     tf_env = tf_py_environment.TFPyEnvironment(py_env)
     random_policy = random_tf_policy.RandomTFPolicy(tf_env.time_step_spec(), tf_env.action_spec(),
                                                     observation_and_action_constraint_splitter=observation_and_action_constraint_splitter)
-    create_policy_eval_video(tf_env, random_policy, "random-agent-part1")
+    create_policy_eval_video(tf_env, random_policy, "random-agent-part2")
 
 
 def observation_and_action_constraint_splitter(obs):
@@ -89,8 +89,8 @@ def create_random_policy(train_env):
 
 
 def train_game_agent():
-    train_py_env = TicTacToeEnv1(train=True)
-    eval_py_env = TicTacToeEnv1()
+    train_py_env = TicTacToeEnv2(train=True)
+    eval_py_env = TicTacToeEnv2()
 
     train_env = tf_py_environment.TFPyEnvironment(train_py_env)
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
@@ -114,7 +114,7 @@ def train_game_agent():
         num_steps=n_step_update + 1).prefetch(3)
     iterator = iter(dataset)
 
-    policy_dir = os.path.join(tempdir, 'play_policy_part1')
+    policy_dir = os.path.join(tempdir, 'play_policy_part2')
     tf_policy_saver = policy_saver.PolicySaver(play_policy.policy)
 
     # (Optional) Optimize by wrapping some of the code in a graph using TF function.
@@ -162,19 +162,19 @@ def train_game_agent():
             if policy_win_rate >= bst:
                 bst = policy_win_rate
                 tf_policy_saver.save(policy_dir)
-                create_zip_file(policy_dir, os.path.join(tempdir, 'exported_policy_part1'))
+                create_zip_file(policy_dir, os.path.join(tempdir, 'exported_policy_part2'))
 
 
 def test_game_agent():
-    eval_py_env = TicTacToeEnv1()
+    eval_py_env = TicTacToeEnv2()
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
     random_policy = random_tf_policy.RandomTFPolicy(eval_env.time_step_spec(), eval_env.action_spec(),
                                                     observation_and_action_constraint_splitter=observation_and_action_constraint_splitter)
-    policy_dir = os.path.join(tempdir, 'play_policy_part1')
+    policy_dir = os.path.join(tempdir, 'play_policy_part2')
 
     play_policy = PlayPolicy(tf.saved_model.load(policy_dir))
-    create_policy_battle_video(eval_env, play_policy, random_policy, 'trained-agent-1-with-random')
-    create_policy_battle_video(eval_env, play_policy, play_policy, 'trained-agent-1-self-battle')
+    create_policy_battle_video(eval_env, play_policy, random_policy, 'trained-agent-2-with-random')
+    create_policy_battle_video(eval_env, play_policy, play_policy, 'trained-agent-2-self-battle')
 
 
 if __name__ == '__main__':
