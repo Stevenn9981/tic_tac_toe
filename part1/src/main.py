@@ -162,7 +162,7 @@ def train_game_agent():
             if policy_win_rate >= bst:
                 bst = policy_win_rate
                 tf_policy_saver.save(policy_dir)
-                create_zip_file(policy_dir, os.path.join(tempdir, 'exported_policy_part1'))
+                # create_zip_file(policy_dir, os.path.join(tempdir, 'exported_policy_part1'))
 
 
 def test_game_agent():

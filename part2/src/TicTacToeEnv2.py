@@ -116,7 +116,7 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
         return np.stack([o_plays, c_plays, l_play, if_first, adj_play], axis=2)
 
     def _step(self, position: int) -> Tuple[np.ndarray, int, bool, dict]:
-        """step function of the tictactoeEnv1
+        """step function of the TicTacToeEnv2
 
         Args:
           position (int): integer between [0, 80], each representing a field on the board
