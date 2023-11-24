@@ -20,7 +20,7 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
     """
 
     def __init__(self, train=False) -> None:
-        """This class contains a TicTacToe environment for OpenAI Gym
+        """This class contains a TicTacToe environment for Part 1
 
         Args:
             train (bool): whether this is an environment for training.

@@ -18,19 +18,19 @@ from part2.src.settings import *
 
 class TicTacToeEnv2(py_environment.PyEnvironment):
     """
-    Implementation of a TicTacToe Environment based on the instructions of Part 1, Question 1.
+    Implementation of a TicTacToe Environment based on the instructions of Part 2, Question 1.
     """
 
     def __init__(self, train=False) -> None:
-        """This class contains a TicTacToe environment for OpenAI Gym
+        """This class contains a TicTacToe environment for Part 2
 
         Args:
             train (bool): whether this is an environment for training.
         """
 
-        self.ener_bin_len = 0.1
+        self.ener_bin_len = 0.25
         self.num_bin = int(1 / self.ener_bin_len) + 1
-        self.n_actions = BOARD_SIZE * BOARD_SIZE * self.num_bin  # 9 * 9 * 11 actions
+        self.n_actions = BOARD_SIZE * BOARD_SIZE * self.num_bin  # 9 * 9 * self.num_bin actions
 
         self._observation_spec = {
             'state': array_spec.BoundedArraySpec(shape=(BOARD_SIZE, BOARD_SIZE, 5), dtype=np.int_, minimum=0,
