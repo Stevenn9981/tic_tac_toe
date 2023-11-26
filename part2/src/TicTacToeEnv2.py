@@ -28,7 +28,7 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
             train (bool): whether this is an environment for training.
         """
 
-        self.ener_bin_len = 0.25
+        self.ener_bin_len = 0.2
         self.num_bin = int(1 / self.ener_bin_len) + 1
         self.n_actions = BOARD_SIZE * BOARD_SIZE * self.num_bin  # 9 * 9 * self.num_bin actions
 
