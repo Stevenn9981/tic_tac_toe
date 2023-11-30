@@ -18,3 +18,7 @@ pip install IPython
 
 Please make sure the above dependencies are installed before running codes.
 
+You can also run the codes in Google Colab.
+
+Part1: https://colab.research.google.com/drive/1p1Hnnc380BE5fMJLmYhkgxax7QqTLrNL?usp=sharing
+Part2: https://colab.research.google.com/drive/129GMfkK04TrpyXrS4TaSpWmlHal6nYK1?usp=sharing
