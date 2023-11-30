@@ -178,5 +178,5 @@ def test_game_agent():
 
 if __name__ == '__main__':
     # show_random_policy()
-    # train_game_agent()
+    train_game_agent()
     test_game_agent()
