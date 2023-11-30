@@ -167,12 +167,12 @@ def train_game_agent():
 def test_game_agent():
     eval_py_env = TicTacToeEnv1()
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
-    random_policy = random_tf_policy.RandomTFPolicy(eval_env.time_step_spec(), eval_env.action_spec(),
-                                                    observation_and_action_constraint_splitter=observation_and_action_constraint_splitter)
+    random_policy = create_random_policy(eval_env)
     policy_dir = os.path.join(tempdir, 'play_policy_part1')
 
     play_policy = PlayPolicy(tf.saved_model.load(policy_dir))
     create_policy_battle_video(eval_env, play_policy, random_policy, 'trained-agent-1-with-random')
+    create_policy_battle_video(eval_env, random_policy, play_policy, 'random-with-trained-agent-1')
     create_policy_battle_video(eval_env, play_policy, play_policy, 'trained-agent-1-self-battle')
 
 
