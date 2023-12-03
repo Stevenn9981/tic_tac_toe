@@ -1,5 +1,7 @@
 ## RL for Tic-Tac-Toe Variant
 
+Codes for part1 and part2 can be found in `part1/` and `part2/` folders, respectively.
+
 ### Requirements
 
 ```shell
@@ -18,7 +20,7 @@ pip install IPython
 
 Please make sure the above dependencies are installed before running codes.
 
-For convenience, you can also run the codes in Google Colab.
+Besides, for your convenience, we also provide a Jupyter Notebook version so that you can also run the codes in Google Colab.
 
 Part1: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg "Open in Colab")](https://colab.research.google.com/github/Stevenn9981/tic_tac_toe/blob/master/tic_tac_toe_part1.ipynb)
 

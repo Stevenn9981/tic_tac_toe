@@ -113,7 +113,7 @@ def train_game_agent():
         num_steps=n_step_update + 1).prefetch(3)
     iterator = iter(dataset)
 
-    policy_dir = os.path.join(tempdir, 'play_policy_part1')
+    policy_dir = os.path.join(tempdir, 'part1/pretrained_policy_part1')
     tf_policy_saver = policy_saver.PolicySaver(play_policy.policy)
 
     # (Optional) Optimize by wrapping some of the code in a graph using TF function.
@@ -161,16 +161,22 @@ def train_game_agent():
             if policy_win_rate >= bst:
                 bst = policy_win_rate
                 tf_policy_saver.save(policy_dir)
-                # create_zip_file(policy_dir, os.path.join(tempdir, 'exported_policy_part1'))
+                # create_zip_file(policy_dir, os.path.join(tempdir, 'part1/exported_policy_part1'))
 
 
 def test_game_agent():
     eval_py_env = TicTacToeEnv1()
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
     random_policy = create_random_policy(eval_env)
-    policy_dir = os.path.join(tempdir, 'play_policy_part1')
+    policy_dir = os.path.join(tempdir, 'part1/pretrained_policy_part1')
 
     play_policy = PlayPolicy(tf.saved_model.load(policy_dir))
+
+    win_rate_1 = compute_avg_win_battle(eval_env, play_policy, random_policy, num_test_episodes)[0]
+    win_rate_2 = compute_avg_win_battle(eval_env, random_policy, play_policy, num_test_episodes)[1]
+    print(f'Play {num_test_episodes} rounds against the random policy as first and second hand, separately:')
+    print(f'Win rate as the first hand: {win_rate_1:.2f}, Win rate as the second hand: {win_rate_2:.2f}')
+
     create_policy_battle_video(eval_env, play_policy, random_policy, 'trained-agent-1-with-random')
     create_policy_battle_video(eval_env, random_policy, play_policy, 'random-with-trained-agent-1')
     create_policy_battle_video(eval_env, play_policy, play_policy, 'trained-agent-1-self-battle')
