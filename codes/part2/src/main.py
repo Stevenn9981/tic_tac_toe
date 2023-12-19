@@ -1,3 +1,7 @@
+import sys
+
+sys.path.append('.')
+
 from codes.part2.src.PlayPolicy import PlayPolicy
 from codes.part2.src.TicTacToeEnv2 import TicTacToeEnv2
 from codes.part2.src.settings import *
@@ -177,12 +181,12 @@ def test_game_agent():
     print(f'Play {num_test_episodes} rounds against the random policy as first and second hand, separately:')
     print(f'Win rate as the first hand: {win_rate_1:.2f}, Win rate as the second hand: {win_rate_2:.2f}')
 
-    create_policy_battle_video(eval_env, play_policy, random_policy, 'trained-agent-2-vs-random')
-    create_policy_battle_video(eval_env, random_policy, play_policy, 'random-vs-trained-agent-2')
-    create_policy_battle_video(eval_env, play_policy, play_policy, 'trained-agent-2-vs-trained-agent-2')
+    create_policy_battle_video(eval_env, play_policy, random_policy, 'TrainedAgent2-vs-Random')
+    create_policy_battle_video(eval_env, random_policy, play_policy, 'Random-vs-TrainedAgent2')
+    create_policy_battle_video(eval_env, play_policy, play_policy, 'TrainedAgent2-vs-TrainedAgent2')
 
 
 if __name__ == '__main__':
     # show_random_policy()
-    # train_game_agent()
+    train_game_agent()
     test_game_agent()

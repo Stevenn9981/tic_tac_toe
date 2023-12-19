@@ -1,3 +1,7 @@
+import sys
+
+sys.path.append('.')
+
 from codes.part1.src.PlayPolicy import PlayPolicy
 from codes.part1.src.TicTacToeEnv1 import TicTacToeEnv1
 from codes.part1.src.settings import *
@@ -14,7 +18,6 @@ from tf_agents.policies import random_tf_policy
 from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.specs import tensor_spec
 from tf_agents.utils import common
-
 
 
 def show_random_policy():
@@ -178,12 +181,12 @@ def test_game_agent():
     print(f'Play {num_test_episodes} rounds against the random policy as first and second hand, separately:')
     print(f'Win rate as the first hand: {win_rate_1:.2f}, Win rate as the second hand: {win_rate_2:.2f}')
 
-    create_policy_battle_video(eval_env, play_policy, random_policy, 'trained-agent-1-vs-random')
-    create_policy_battle_video(eval_env, random_policy, play_policy, 'random-vs-trained-agent-1')
-    create_policy_battle_video(eval_env, play_policy, play_policy, 'trained-agent-1-vs-trained-agent-1')
+    create_policy_battle_video(eval_env, play_policy, random_policy, 'TrainedAgent1-vs-Random')
+    create_policy_battle_video(eval_env, random_policy, play_policy, 'Random-vs-TrainedAgent1')
+    create_policy_battle_video(eval_env, play_policy, play_policy, 'TrainedAgent1-vs-TrainedAgent1')
 
 
 if __name__ == '__main__':
     # show_random_policy()
-    # train_game_agent()
+    train_game_agent()
     test_game_agent()

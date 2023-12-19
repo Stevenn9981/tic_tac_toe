@@ -22,7 +22,14 @@ pip install IPython
 
 Please make sure the above dependencies are installed before running codes.
 
-Besides, for your convenience, we also provide a Jupyter Notebook version so that you can also run the codes in Google Colab.
+You can use the following commands to train the agents and evaluate (for part1 and part2, respectively):
+
+```shell
+python codes/part1/src/main.py 
+python codes/part2/src/main.py
+```
+
+Besides, for your convenience, a Jupyter Notebook version is also provided so that you can also run the codes in Google Colab.
 
 Part1: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg "Open in Colab")](https://colab.research.google.com/github/Stevenn9981/tic_tac_toe/blob/master/tic_tac_toe_part1.ipynb)
 
