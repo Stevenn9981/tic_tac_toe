@@ -1,6 +1,8 @@
 ## RL for Tic-Tac-Toe Variant
 
-Codes for part1 and part2 can be found in `part1/` and `part2/` folders, respectively.
+All codes, including both algorithms and tests, can be found in `codes` folder.
+
+Codes for part1 and part2 can be found in `codes/part1/` and `codes/part2/` folders, respectively.
 
 ### Requirements
 
