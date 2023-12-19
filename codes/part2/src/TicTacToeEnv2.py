@@ -21,7 +21,7 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
     Implementation of a TicTacToe Environment based on the instructions of Part 2, Question 1.
     """
 
-    def __init__(self, train=False) -> None:
+    def __init__(self) -> None:
         """This class contains a TicTacToe environment for Part 2
 
         Args:
@@ -41,7 +41,6 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
         self.colors = [1, 2]
         self.screen = None
         self.fields_per_side = BOARD_SIZE
-        self.train = train
         self.reset()
 
     def observation_spec(self):

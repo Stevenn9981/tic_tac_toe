@@ -117,7 +117,7 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
 
         Returns:
           state (np.array): state of 2 players' history, 0 means no stone, 1 means stones placed by the corresponding player (shape: 9x9x2).
-          reward (int): reward of the currrent step
+          reward (int): reward of the current step
           done (boolean): true, if the game is finished
           (dict): empty dict for future game related information
         """
@@ -181,8 +181,8 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         """ Detect how many alive_two can obtain by this play out.
 
         Args:
-            row (int): row of the current play
-            col (int): column of the current play
+            row (int): row of the position to be placed
+            col (int): column of the position to be placed
 
         Returns:
             cnt (int): the number of alive_two
@@ -199,11 +199,11 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         return cnt
 
     def detect_three(self, r: int, c: int) -> tuple:
-        """ Detect how many non_active_three and active_three can obtain by this play out.
+        """ Detect how many non_active_three and active_three can obtain by this move.
 
         Args:
-            r (int): row of the current play
-            c (int): column of the current play
+            r (int): row of the position to be placed
+            c (int): column of the position to be placed
 
         Returns:
             cnt_non_act (int): the number of non_active_three

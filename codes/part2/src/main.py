@@ -92,7 +92,7 @@ def create_random_policy(train_env):
 
 
 def train_game_agent():
-    train_py_env = TicTacToeEnv2(train=True)
+    train_py_env = TicTacToeEnv2()
     eval_py_env = TicTacToeEnv2()
 
     train_env = tf_py_environment.TFPyEnvironment(train_py_env)
