@@ -311,6 +311,37 @@ class TestPart1(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.env.step(30)
 
+        board = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                          [0, 0, 1, 0, 0, 2, 0, 0, 0],
+                          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                          [0, 0, 1, 0, 0, 2, 0, 0, 0],
+                          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                          [0, 0, 0, 0, 0, 0, 0, 0, 0]])
+        equal = True
+        for _ in range(10):
+            self.env._reset()
+            self.env.step(20)
+            self.env.step(23)
+            self.env.step(47)
+            self.env.step(50)
+            equal = equal and np.equal(self.env.board, board).all()
+        self.assertFalse(equal)
+
+        equal = True
+        train_env = TicTacToeEnv1(train=True)
+        for _ in range(10):
+            train_env._reset()
+            train_env.step(20)
+            train_env.step(23)
+            train_env.step(47)
+            train_env.step(50)
+            equal = equal and np.equal(train_env.board, board).all()
+        self.assertTrue(equal)
+
+
     def test_drop_here_will_win(self):
         self.env._reset()
         self.assertEqual(drop_here_will_win(self.env, 11, 1), False)
