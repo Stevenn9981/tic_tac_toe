@@ -1,6 +1,7 @@
 import pdb
 import unittest
 
+from codes.part1.src.PlayPolicy import drop_here_will_win
 from codes.part1.src.TicTacToeEnv1 import *
 
 
@@ -294,6 +295,74 @@ class TestPart1(unittest.TestCase):
         self.assertEqual(self.env.decode_action(45), [5, 0])
         self.assertEqual(self.env.decode_action(64), [7, 1])
         self.assertEqual(self.env.decode_action(80), [8, 8])
+
+    def test_step(self):
+        self.env.board = np.array([[1, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 1, 0, 2, 0, 0, 0],
+                                   [0, 0, 1, 0, 2, 2, 2, 0, 0],
+                                   [0, 0, 0, 1, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 1, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0]])
+        with self.assertRaises(ValueError):
+            self.env.step(0)
+        with self.assertRaises(ValueError):
+            self.env.step(30)
+
+    def test_drop_here_will_win(self):
+        self.env._reset()
+        self.assertEqual(drop_here_will_win(self.env, 11, 1), False)
+        self.assertEqual(drop_here_will_win(self.env, 40, 1), False)
+        self.assertEqual(drop_here_will_win(self.env, 78, 1), False)
+
+        self.env.board = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 1, 0, 2, 0, 0, 0],
+                                   [0, 0, 1, 1, 2, 2, 2, 0, 0],
+                                   [0, 0, 0, 1, 0, 2, 0, 0, 0],
+                                   [0, 0, 0, 0, 1, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0]])
+        self.assertEqual(drop_here_will_win(self.env, 20, 1), False)
+        self.assertEqual(drop_here_will_win(self.env, 21, 1), True)
+        self.assertEqual(drop_here_will_win(self.env, 22, 1), False)
+        self.assertEqual(drop_here_will_win(self.env, 28, 1), True)
+        self.assertEqual(drop_here_will_win(self.env, 29, 1), False)
+        self.assertEqual(drop_here_will_win(self.env, 43, 1), False)
+        self.assertEqual(drop_here_will_win(self.env, 57, 1), True)
+        self.assertEqual(drop_here_will_win(self.env, 59, 1), False)
+        self.assertEqual(drop_here_will_win(self.env, 68, 1), True)
+
+        self.assertEqual(drop_here_will_win(self.env, 22, 2), False)
+        self.assertEqual(drop_here_will_win(self.env, 23, 2), True)
+        self.assertEqual(drop_here_will_win(self.env, 28, 2), False)
+        self.assertEqual(drop_here_will_win(self.env, 33, 2), False)
+        self.assertEqual(drop_here_will_win(self.env, 43, 2), True)
+        self.assertEqual(drop_here_will_win(self.env, 51, 2), False)
+        self.assertEqual(drop_here_will_win(self.env, 59, 2), True)
+
+        self.env.board = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 1, 0, 2, 0, 0, 0],
+                                   [0, 0, 1, 0, 2, 2, 2, 0, 0],
+                                   [0, 0, 0, 1, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 1, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0]])
+
+        self.assertEqual(drop_here_will_win(self.env, 21, 1), False)
+        self.assertEqual(drop_here_will_win(self.env, 39, 1), True)
+        self.assertEqual(drop_here_will_win(self.env, 43, 1), False)
+        self.assertEqual(drop_here_will_win(self.env, 47, 1), False)
+
+        self.assertEqual(drop_here_will_win(self.env, 39, 2), True)
+        self.assertEqual(drop_here_will_win(self.env, 31, 2), False)
+        self.assertEqual(drop_here_will_win(self.env, 43, 2), True)
+        self.assertEqual(drop_here_will_win(self.env, 50, 2), False)
 
 
 if __name__ == '__main__':
