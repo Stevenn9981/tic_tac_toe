@@ -152,6 +152,149 @@ class TestPart1(unittest.TestCase):
         self.assertEqual(self.env.detect_alive_two(5, 4), 1)
         self.assertEqual(self.env.detect_alive_two(6, 4), 1)
 
+    def test_detect_three(self):
+        self.env._reset()
+        cnt_non_act, cnt_act = self.env.detect_three(1, 2)
+        self.assertEqual(cnt_non_act, 0)
+        self.assertEqual(cnt_act, 0)
+        cnt_non_act, cnt_act = self.env.detect_three(4, 4)
+        self.assertEqual(cnt_non_act, 0)
+        self.assertEqual(cnt_act, 0)
+        cnt_non_act, cnt_act = self.env.detect_three(8, 6)
+        self.assertEqual(cnt_non_act, 0)
+        self.assertEqual(cnt_act, 0)
+
+        self.env.board = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 1, 0, 2, 0, 0, 0],
+                                   [0, 0, 1, 0, 2, 0, 2, 0, 0],
+                                   [0, 0, 0, 1, 0, 2, 0, 0, 0],
+                                   [0, 0, 0, 0, 1, 0, 0, 0, 0],
+                                   [0, 0, 0, 1, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0]])
+        self.env.current_player = 2
+        cnt_non_act, cnt_act = self.env.detect_three(1, 2)
+        self.assertEqual(cnt_non_act, 0)
+        self.assertEqual(cnt_act, 0)
+        cnt_non_act, cnt_act = self.env.detect_three(2, 4)
+        self.assertEqual(cnt_non_act, 0)
+        self.assertEqual(cnt_act, 1)
+        cnt_non_act, cnt_act = self.env.detect_three(2, 6)
+        self.assertEqual(cnt_non_act, 1)
+        self.assertEqual(cnt_act, 0)
+        cnt_non_act, cnt_act = self.env.detect_three(3, 7)
+        self.assertEqual(cnt_non_act, 1)
+        self.assertEqual(cnt_act, 0)
+        cnt_non_act, cnt_act = self.env.detect_three(4, 5)
+        self.assertEqual(cnt_non_act, 0)
+        self.assertEqual(cnt_act, 2)
+        cnt_non_act, cnt_act = self.env.detect_three(5, 7)
+        self.assertEqual(cnt_non_act, 0)
+        self.assertEqual(cnt_act, 1)
+        cnt_non_act, cnt_act = self.env.detect_three(6, 6)
+        self.assertEqual(cnt_non_act, 1)
+        self.assertEqual(cnt_act, 0)
+
+        self.env.board = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 1, 1, 0, 0, 0, 0],
+                                   [0, 0, 1, 0, 2, 2, 0, 0, 0],
+                                   [0, 0, 1, 1, 2, 2, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 2, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0]])
+        self.env.current_player = 1
+        cnt_non_act, cnt_act = self.env.detect_three(2, 2)
+        self.assertEqual(cnt_non_act, 0)
+        self.assertEqual(cnt_act, 0)
+        cnt_non_act, cnt_act = self.env.detect_three(3, 2)
+        self.assertEqual(cnt_non_act, 0)
+        self.assertEqual(cnt_act, 2)
+        cnt_non_act, cnt_act = self.env.detect_three(3, 5)
+        self.assertEqual(cnt_non_act, 0)
+        self.assertEqual(cnt_act, 1)
+        cnt_non_act, cnt_act = self.env.detect_three(4, 3)
+        self.assertEqual(cnt_non_act, 0)
+        self.assertEqual(cnt_act, 2)
+        cnt_non_act, cnt_act = self.env.detect_three(5, 1)
+        self.assertEqual(cnt_non_act, 1)
+        self.assertEqual(cnt_act, 1)
+        cnt_non_act, cnt_act = self.env.detect_three(6, 2)
+        self.assertEqual(cnt_non_act, 0)
+        self.assertEqual(cnt_act, 1)
+        cnt_non_act, cnt_act = self.env.detect_three(6, 3)
+        self.assertEqual(cnt_non_act, 0)
+        self.assertEqual(cnt_act, 0)
+        cnt_non_act, cnt_act = self.env.detect_three(6, 4)
+        self.assertEqual(cnt_non_act, 0)
+        self.assertEqual(cnt_act, 1)
+
+    def test_win(self):
+        self.env._reset()
+        self.env.current_player = 1
+        self.assertEqual(self.env._is_win(1, 2), False)
+        self.assertEqual(self.env._is_win(4, 4), False)
+        self.env.current_player = 2
+        self.assertEqual(self.env._is_win(8, 6), False)
+
+        self.env.board = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 1, 0, 2, 0, 0, 0],
+                                   [0, 0, 1, 1, 2, 2, 2, 0, 0],
+                                   [0, 0, 0, 1, 0, 2, 0, 0, 0],
+                                   [0, 0, 0, 0, 1, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0]])
+        self.env.current_player = 1
+        self.assertEqual(self.env._is_win(2, 2), False)
+        self.assertEqual(self.env._is_win(2, 3), True)
+        self.assertEqual(self.env._is_win(2, 4), False)
+        self.assertEqual(self.env._is_win(3, 1), True)
+        self.assertEqual(self.env._is_win(3, 2), False)
+        self.assertEqual(self.env._is_win(4, 7), False)
+        self.assertEqual(self.env._is_win(6, 3), True)
+        self.assertEqual(self.env._is_win(6, 5), False)
+        self.assertEqual(self.env._is_win(7, 5), True)
+        self.env.current_player = 2
+        self.assertEqual(self.env._is_win(2, 4), False)
+        self.assertEqual(self.env._is_win(2, 5), True)
+        self.assertEqual(self.env._is_win(3, 1), False)
+        self.assertEqual(self.env._is_win(3, 6), False)
+        self.assertEqual(self.env._is_win(4, 7), True)
+        self.assertEqual(self.env._is_win(5, 6), False)
+        self.assertEqual(self.env._is_win(6, 5), True)
+
+        self.env.board = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 1, 0, 2, 0, 0, 0],
+                                   [0, 0, 1, 0, 2, 2, 2, 0, 0],
+                                   [0, 0, 0, 1, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 1, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0]])
+        self.env.current_player = 1
+        self.assertEqual(self.env._is_win(2, 3), False)
+        self.assertEqual(self.env._is_win(4, 3), True)
+        self.assertEqual(self.env._is_win(4, 7), False)
+        self.assertEqual(self.env._is_win(5, 2), False)
+        self.env.current_player = 2
+        self.assertEqual(self.env._is_win(4, 3), True)
+        self.assertEqual(self.env._is_win(3, 4), False)
+        self.assertEqual(self.env._is_win(4, 7), True)
+        self.assertEqual(self.env._is_win(5, 5), False)
+
+    def test_decode_action(self):
+        self.assertEqual(self.env.decode_action(6), [0, 6])
+        self.assertEqual(self.env.decode_action(16), [1, 7])
+        self.assertEqual(self.env.decode_action(25), [2, 7])
+        self.assertEqual(self.env.decode_action(45), [5, 0])
+        self.assertEqual(self.env.decode_action(64), [7, 1])
+        self.assertEqual(self.env.decode_action(80), [8, 8])
+
 
 if __name__ == '__main__':
     unittest.main()

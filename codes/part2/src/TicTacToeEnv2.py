@@ -155,7 +155,7 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
         win = False
         if 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE and self.board[row, col] == 0:
             self.board[row, col] = self.current_player  # drop the piece on the field
-            win = self._is_win(self.current_player, row, col)
+            win = self._is_win(row, col)
 
             cnt_act_two = self.detect_alive_two(row, col)
             cnt_non_act_three, cnt_act_three = self.detect_three(row, col)
@@ -234,7 +234,7 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
             count = 0
             for offset in range(-2, 3):
                 if 0 <= r + offset * direct[0] < 9 and 0 <= c + offset * direct[1] < 9:
-                    if self.board[r + offset * direct[0], c + offset * direct[1]] == self.current_player:
+                    if self.board[r + offset * direct[0], c + offset * direct[1]] == self.current_player or offset == 0:
                         count += 1
                         if count == 3:
                             p1_r, p1_c = r + (offset + 1) * direct[0], c + (offset + 1) * direct[1]
@@ -270,11 +270,10 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
         row, col = row + adj[0], col + adj[1]
         return row, col
 
-    def _is_win(self, color: int, r: int, c: int) -> bool:
+    def _is_win(self, r: int, c: int) -> bool:
         """check if this player results in a winner
 
         Args:
-            color (int): of the player
             r (int): row of the current play
             c (int): column of the current play
 
@@ -282,14 +281,14 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
             bool: indicating if there is a winner
         """
 
-        # check if four equal stones are aligned (horizontal, verical or diagonal)
+        # check if four equal stones are aligned (horizontal, vertical or diagonal)
         directions = [[0, 1], [1, 0], [1, 1], [1, -1]]
 
         for direct in directions:
             count = 0
             for offset in range(-3, 4):
                 if 0 <= r + offset * direct[0] < 9 and 0 <= c + offset * direct[1] < 9:
-                    if self.board[r + offset * direct[0], c + offset * direct[1]] == color:
+                    if self.board[r + offset * direct[0], c + offset * direct[1]] == self.current_player or offset == 0:
                         count += 1
                         if count == 4:
                             return True

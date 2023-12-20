@@ -146,7 +146,7 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         win = False
         if 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE and self.board[row, col] == 0:
             self.board[row, col] = self.current_player  # drop the piece on the field
-            win = self._is_win(self.current_player, row, col)
+            win = self._is_win(row, col)
 
             cnt_act_two = self.detect_alive_two(row, col)
             cnt_non_act_three, cnt_act_three = self.detect_three(row, col)
@@ -202,8 +202,8 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         """ Detect how many non_active_three and active_three can obtain by this move.
 
         Args:
-            r (int): row of the position to be placed
-            c (int): column of the position to be placed
+            r (int): row of the current move
+            c (int): column of the current move
 
         Returns:
             cnt_non_act (int): the number of non_active_three
@@ -211,14 +211,13 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         """
         cnt_non_act = 0
         cnt_act = 0
-        opponent = self.current_player + 1 if self.current_player == 1 else 1
         directions = [[0, 1], [1, 0], [1, 1], [1, -1]]
 
         for direct in directions:
             count = 0
             for offset in range(-2, 3):
                 if 0 <= r + offset * direct[0] < 9 and 0 <= c + offset * direct[1] < 9:
-                    if self.board[r + offset * direct[0], c + offset * direct[1]] == self.current_player:
+                    if self.board[r + offset * direct[0], c + offset * direct[1]] == self.current_player or offset == 0:
                         count += 1
                         if count == 3:
                             p1_r, p1_c = r + (offset + 1) * direct[0], c + (offset + 1) * direct[1]
@@ -241,8 +240,8 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         """ Randomly select an adjacent position with equal probabilities.
 
         Args:
-            row (int): row of the current play
-            col (int): column of the current play
+            row (int): row of the current move
+            col (int): column of the current move
 
         Returns:
             row (int): row of the selected adjacent position
@@ -254,26 +253,25 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         row, col = row + adj[0], col + adj[1]
         return row, col
 
-    def _is_win(self, color: int, r: int, c: int) -> bool:
+    def _is_win(self, r: int, c: int) -> bool:
         """check if this player results in a winner
 
         Args:
-            color (int): of the player
-            r (int): row of the current play
-            c (int): column of the current play
+            r (int): row of the current move
+            c (int): column of the current move
 
         Returns:
             bool: indicating if there is a winner
         """
 
-        # check if four equal stones are aligned (horizontal, verical or diagonal)
+        # check if four equal stones are aligned (horizontal, vertical or diagonal)
         directions = [[0, 1], [1, 0], [1, 1], [1, -1]]
 
         for direct in directions:
             count = 0
             for offset in range(-3, 4):
                 if 0 <= r + offset * direct[0] < 9 and 0 <= c + offset * direct[1] < 9:
-                    if self.board[r + offset * direct[0], c + offset * direct[1]] == color:
+                    if self.board[r + offset * direct[0], c + offset * direct[1]] == self.current_player or offset == 0:
                         count += 1
                         if count == 4:
                             return True
