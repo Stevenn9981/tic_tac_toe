@@ -192,7 +192,7 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         for adj in adjs:
             p1_r, p1_c = row + 2 * adj[0], col + 2 * adj[1]
             p2_r, p2_c = row - adj[0], col - adj[1]
-            if 0 <= p1_r < 9 and 0 <= p1_c < 9 and 0 <= p2_r < 9 and 0 <= p2_c < 9:
+            if 0 <= p1_r < BOARD_SIZE and 0 <= p1_c < BOARD_SIZE and 0 <= p2_r < BOARD_SIZE and 0 <= p2_c < BOARD_SIZE:
                 if self.board[row + adj[0], col + adj[1]] == self.current_player and self.board[p1_r, p1_c] == 0 and \
                         self.board[p2_r, p2_c] == 0:
                     cnt += 1
@@ -216,15 +216,17 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         for direct in directions:
             count = 0
             for offset in range(-2, 3):
-                if 0 <= r + offset * direct[0] < 9 and 0 <= c + offset * direct[1] < 9:
+                if 0 <= r + offset * direct[0] < BOARD_SIZE and 0 <= c + offset * direct[1] < BOARD_SIZE:
                     if self.board[r + offset * direct[0], c + offset * direct[1]] == self.current_player or offset == 0:
                         count += 1
                         if count == 3:
                             p1_r, p1_c = r + (offset + 1) * direct[0], c + (offset + 1) * direct[1]
                             p2_r, p2_c = r + (offset - 3) * direct[0], c + (offset - 3) * direct[1]
 
-                            p1_is_empty = (0 <= p1_r < 9 and 0 <= p1_c < 9 and self.board[p1_r, p1_c] == 0)
-                            p2_is_empty = (0 <= p2_r < 9 and 0 <= p2_c < 9 and self.board[p2_r, p2_c] == 0)
+                            p1_is_empty = (0 <= p1_r < BOARD_SIZE and 0 <= p1_c < BOARD_SIZE and self.board[
+                                p1_r, p1_c] == 0)
+                            p2_is_empty = (0 <= p2_r < BOARD_SIZE and 0 <= p2_c < BOARD_SIZE and self.board[
+                                p2_r, p2_c] == 0)
 
                             if p1_is_empty and p2_is_empty:
                                 cnt_act += 1
@@ -270,7 +272,7 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         for direct in directions:
             count = 0
             for offset in range(-3, 4):
-                if 0 <= r + offset * direct[0] < 9 and 0 <= c + offset * direct[1] < 9:
+                if 0 <= r + offset * direct[0] < BOARD_SIZE and 0 <= c + offset * direct[1] < BOARD_SIZE:
                     if self.board[r + offset * direct[0], c + offset * direct[1]] == self.current_player or offset == 0:
                         count += 1
                         if count == 4:

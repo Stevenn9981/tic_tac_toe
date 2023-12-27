@@ -8,6 +8,14 @@ from codes.part1.src.settings import BOARD_SIZE
 
 
 def drop_here_will_win(py_env, action, color):
+    """Check whether the player can win the game if the stone is placed in the given place
+
+    Args:
+        py_env: the game environment
+        action (int): the action which represents the chosen place
+        color (int): indicates which player is going to play
+    """
+
     # check if four equal stones are aligned (horizontal, vertical or diagonal)
     directions = [[0, 1], [1, 0], [1, 1], [1, -1]]
 
@@ -30,10 +38,25 @@ def drop_here_will_win(py_env, action, color):
 
 
 class PlayPolicy():
+    """
+        This class is an encapsulation of the trained policy.
+        It allows us to write some strict rules instead of only relying on the predictions of trained RL policy.
+    """
+
     def __init__(self, policy):
         self.policy = policy
 
     def action(self, time_step: TimeStep, env=None) -> PolicyStep:
+        """
+            Choose the next action based on the current time step.
+            We add some strict rules here:
+                1. If there is a place where the current player can win the game, place the stone right down there.
+                2. Else if there is a place where the opponent player can win, place the stone right down there.
+                3. Else, let the trained RL policy decide where to go.
+            Args:
+                time_step: current TimeStep.
+                env: the game environment
+        """
         if env:
             py_env = env._envs[0]
             if np.sum(py_env.board) > 2:
