@@ -21,6 +21,9 @@ from tf_agents.utils import common
 
 
 def show_random_policy():
+    """
+        Create a video (named random-agent-part1.mp4) that records how a random policy plays the game
+    """
     py_env = TicTacToeEnv2()
     tf_env = tf_py_environment.TFPyEnvironment(py_env)
     random_policy = create_random_policy(tf_env)
@@ -28,10 +31,20 @@ def show_random_policy():
 
 
 def observation_and_action_constraint_splitter(obs):
+    """
+        A splitter that splits states and action constraints in observations
+    """
     return obs['state'], obs['legal_moves']
 
 
 def create_q_net(train_env):
+    """
+        Create a Q network used in DQN
+        Args:
+            train_env: the game environments
+        Return:
+            q_net: the created Q network
+    """
     conv_layer_params = [32, 64, 128]
     action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
     num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
@@ -70,6 +83,13 @@ def create_q_net(train_env):
 
 
 def create_dqn_agent(train_env):
+    """
+        Create a DQN agent
+        Args:
+            train_env: the game environments
+        Return:
+            agent: the created DQN agent
+    """
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
     q_net = create_q_net(train_env)
     agent = dqn_agent.DqnAgent(
@@ -87,11 +107,22 @@ def create_dqn_agent(train_env):
 
 
 def create_random_policy(train_env):
+    """
+        Create a random policy for the game
+        Args:
+            train_env: the game environments
+        Return:
+            the created random policy
+    """
     return random_tf_policy.RandomTFPolicy(train_env.time_step_spec(), train_env.action_spec(),
                                            observation_and_action_constraint_splitter=observation_and_action_constraint_splitter)
 
 
 def train_game_agent():
+    """
+        Train the RL agent. We let the RL agent self-play to collect training data and
+        save the trained RL agent in the `pretrained_policy_part1` folder
+    """
     train_py_env = TicTacToeEnv2()
     eval_py_env = TicTacToeEnv2()
 
@@ -169,6 +200,13 @@ def train_game_agent():
 
 
 def test_game_agent():
+    """
+        Test the trained RL agent. We compared the trained RL agents with itself,
+        random policy (as first-hand and second-hand), respectively. Then calculate
+        the win rates of the trained RL agent in each scenario. Besides, we also
+        generate videos to record the matches under each scenario to give a more
+        intuitive view. All the videos are saved in the `videos` folder.
+    """
     eval_py_env = TicTacToeEnv2()
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
     random_policy = create_random_policy(eval_env)
