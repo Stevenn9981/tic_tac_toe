@@ -29,6 +29,14 @@ python codes/part1/src/main.py
 python codes/part2/src/main.py
 ```
 
+To run the tests, use the following scripts:
+
+```shell
+python -m unittest codes/part1/test_part1.py 
+python -m unittest codes/part2/test_part2.py
+```
+
+
 Besides, for your convenience, a Jupyter Notebook version is also provided so that you can also run the codes in Google Colab.
 
 Part1: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg "Open in Colab")](https://colab.research.google.com/github/Stevenn9981/tic_tac_toe/blob/master/tic_tac_toe_part1.ipynb)
