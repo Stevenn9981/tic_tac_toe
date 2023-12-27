@@ -1,15 +1,19 @@
-import pdb
 import unittest
 
-from codes.part1.src.PlayPolicy import drop_here_will_win
+from tf_agents.environments import tf_py_environment
+
+from codes.part1.src.PlayPolicy import drop_here_will_win, PlayPolicy
 from codes.part1.src.TicTacToeEnv1 import *
+from codes.part1.src.main import create_random_policy
 
 
 class TestPart1(unittest.TestCase):
 
+    # Create an instance of TicTacToeEnv1 at first
     def setUp(self):
         self.env = TicTacToeEnv1()
 
+    # Test whether `if_chess_nearby` function can perform correctly.
     def test_if_chess_nearby(self):
         self.env._reset()
         self.assertFalse(self.env.if_chess_nearby(4, 4))
@@ -39,6 +43,7 @@ class TestPart1(unittest.TestCase):
         self.assertTrue(self.env.if_chess_nearby(6, 7))
         self.assertFalse(self.env.if_chess_nearby(6, 8))
 
+    # Test whether `decompose_board_to_state` function can perform correctly.
     def test_decompose_board_to_state(self):
         self.env._reset()
         self.assertTrue(np.equal(self.env.decompose_board_to_state(), np.stack([
@@ -109,6 +114,7 @@ class TestPart1(unittest.TestCase):
                              [0, 0, 0, 0, 0, 0, 0, 0, 0]])
         self.assertTrue(np.equal(state, np.stack([o_plays, c_plays, l_play, if_first, adj_play], axis=2)).all())
 
+    # Test whether `detect_alive_two` function can perform correctly.
     def test_detect_alive_two(self):
         self.env._reset()
         self.assertEqual(self.env.detect_alive_two(1, 2), 0)
@@ -153,6 +159,7 @@ class TestPart1(unittest.TestCase):
         self.assertEqual(self.env.detect_alive_two(5, 4), 1)
         self.assertEqual(self.env.detect_alive_two(6, 4), 1)
 
+    # Test whether `detect_three` function can perform correctly.
     def test_detect_three(self):
         self.env._reset()
         cnt_non_act, cnt_act = self.env.detect_three(1, 2)
@@ -232,7 +239,8 @@ class TestPart1(unittest.TestCase):
         self.assertEqual(cnt_non_act, 0)
         self.assertEqual(cnt_act, 1)
 
-    def test_win(self):
+    # Test whether `_is_win` function can perform correctly.
+    def test__is_win(self):
         self.env._reset()
         self.env.current_player = 1
         self.assertEqual(self.env._is_win(1, 2), False)
@@ -288,6 +296,7 @@ class TestPart1(unittest.TestCase):
         self.assertEqual(self.env._is_win(4, 7), True)
         self.assertEqual(self.env._is_win(5, 5), False)
 
+    # Test whether `decode_action` function can perform correctly.
     def test_decode_action(self):
         self.assertEqual(self.env.decode_action(6), [0, 6])
         self.assertEqual(self.env.decode_action(16), [1, 7])
@@ -296,6 +305,7 @@ class TestPart1(unittest.TestCase):
         self.assertEqual(self.env.decode_action(64), [7, 1])
         self.assertEqual(self.env.decode_action(80), [8, 8])
 
+    # Test whether `step` function can perform correctly (For both training and inference phases).
     def test_step(self):
         self.env.board = np.array([[1, 0, 0, 0, 0, 0, 0, 0, 0],
                                    [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -321,7 +331,7 @@ class TestPart1(unittest.TestCase):
                           [0, 0, 0, 0, 0, 0, 0, 0, 0],
                           [0, 0, 0, 0, 0, 0, 0, 0, 0]])
         equal = True
-        for _ in range(10):
+        for _ in range(20):
             self.env._reset()
             self.env.step(20)
             self.env.step(23)
@@ -332,7 +342,7 @@ class TestPart1(unittest.TestCase):
 
         equal = True
         train_env = TicTacToeEnv1(train=True)
-        for _ in range(10):
+        for _ in range(20):
             train_env._reset()
             train_env.step(20)
             train_env.step(23)
@@ -341,7 +351,7 @@ class TestPart1(unittest.TestCase):
             equal = equal and np.equal(train_env.board, board).all()
         self.assertTrue(equal)
 
-
+    # Test whether `drop_here_will_win` function can perform correctly.
     def test_drop_here_will_win(self):
         self.env._reset()
         self.assertEqual(drop_here_will_win(self.env, 11, 1), False)
@@ -394,6 +404,40 @@ class TestPart1(unittest.TestCase):
         self.assertEqual(drop_here_will_win(self.env, 31, 2), False)
         self.assertEqual(drop_here_will_win(self.env, 43, 2), True)
         self.assertEqual(drop_here_will_win(self.env, 50, 2), False)
+
+    # Test whether the strict rules written in `PlayPolicy` class can perform correctly.
+    def test_PlayPolicy_rule(self):
+        train_env = tf_py_environment.TFPyEnvironment(self.env)
+        random_policy = create_random_policy(train_env)
+        play_policy = PlayPolicy(random_policy)
+        time_step = train_env.reset()
+        self.env.board = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 1, 0, 2, 0, 0, 0],
+                                   [0, 0, 1, 0, 0, 2, 2, 2, 0],
+                                   [0, 0, 0, 1, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 1, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0]])
+        self.env.current_player = 1
+        self.assertEqual(int(play_policy.action(time_step, train_env).action[0]), 39)
+        self.env.current_player = 2
+        self.assertEqual(int(play_policy.action(time_step, train_env).action[0]), 40)
+
+        self.env.board = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 1, 0, 0, 0, 0],
+                                   [0, 0, 0, 1, 0, 2, 0, 0, 0],
+                                   [0, 0, 1, 0, 0, 2, 2, 2, 0],
+                                   [0, 0, 0, 1, 0, 2, 0, 0, 0],
+                                   [0, 0, 0, 0, 1, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0]])
+        self.env.current_player = 1
+        self.assertEqual(int(play_policy.action(time_step, train_env).action[0]), 14)
+        self.env.current_player = 2
+        self.assertEqual(int(play_policy.action(time_step, train_env).action[0]), 23)
 
 
 if __name__ == '__main__':

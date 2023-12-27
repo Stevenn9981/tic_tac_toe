@@ -4,6 +4,8 @@ import tensorflow as tf
 from tf_agents.trajectories import PolicyStep
 import numpy as np
 
+from codes.part2.src.settings import BOARD_SIZE
+
 
 def drop_here_will_win(py_env, action, color):
     # check if four equal stones are aligned (horizontal, vertical or diagonal)
@@ -16,7 +18,7 @@ def drop_here_will_win(py_env, action, color):
     for direct in directions:
         count = 0
         for offset in range(-3, 4):
-            if 0 <= r + offset * direct[0] < 9 and 0 <= c + offset * direct[1] < 9:
+            if 0 <= r + offset * direct[0] < BOARD_SIZE and 0 <= c + offset * direct[1] < BOARD_SIZE:
                 if current_board[r + offset * direct[0], c + offset * direct[1]] == color:
                     count += 1
                     if count == 4:
@@ -32,19 +34,18 @@ class PlayPolicy():
         self.policy = policy
 
     def action(self, act: int, env=None):
-        action_step = self.policy.action(act)
         if env:
             py_env = env._envs[0]
-            if np.sum(py_env.board) > 6:
+            if np.sum(py_env.board) > 2:
                 current_player = py_env.current_player
                 opponent = current_player + 1 if current_player == 1 else 1
                 occupied_positions = py_env.info['Occupied']
                 # Find out if there is a position where the current player can win the game
-                for act in range(81):
+                for act in range(BOARD_SIZE * BOARD_SIZE):
                     if act not in occupied_positions and drop_here_will_win(py_env, act, current_player):
-                        return PolicyStep(action=tf.convert_to_tensor(np.array([act + (py_env.num_bin - 1) * 81])))
+                        return PolicyStep(action=tf.convert_to_tensor(np.array([act + (py_env.num_bin - 1) * BOARD_SIZE * BOARD_SIZE])))
                 # Find out if there is a position where the opponent player can win the game
-                for act in range(81):
+                for act in range(BOARD_SIZE * BOARD_SIZE):
                     if act not in occupied_positions and drop_here_will_win(py_env, act, opponent):
-                        return PolicyStep(action=tf.convert_to_tensor(np.array([act + (py_env.num_bin - 1) * 81])))
-        return action_step
+                        return PolicyStep(action=tf.convert_to_tensor(np.array([act + (py_env.num_bin - 1) * BOARD_SIZE * BOARD_SIZE])))
+        return self.policy.action(act)
