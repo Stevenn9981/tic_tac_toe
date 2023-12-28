@@ -80,7 +80,6 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         # 0 means not finished, 1 or 2 means the winner and 3 means draw
         self.result = 0
 
-        # return self.decompose_board_to_state()
         observations_and_legal_moves = {'state': self.decompose_board_to_state(),
                                         'legal_moves': self.info["legal_moves"]}
         return ts.restart(observations_and_legal_moves)
@@ -116,10 +115,7 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
           action (int): integer between [0, 80], each representing a field on the board
 
         Returns:
-          state (np.array): state of 2 players' history, 0 means no stone, 1 means stones placed by the corresponding player (shape: 9x9x2).
-          reward (int): reward of the current step
-          done (boolean): true, if the game is finished
-          (dict): empty dict for future game related information
+          A TimeStep instance consisting of the next state, reward, and legal move constraints.
         """
         action = int(action)
         if not (0 <= action < self.n_actions):
@@ -256,7 +252,7 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         return row, col
 
     def _is_win(self, r: int, c: int) -> bool:
-        """check if this player results in a winner
+        """check if this move results in a winner
 
         Args:
             r (int): row of the current move
@@ -283,10 +279,7 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         return False
 
     def decode_action(self, action: int) -> List[int]:
-        """decode the action integer into a colum and row value
-
-        0 = upper left corner
-        8 = lower right corner
+        """decode the action integer into the row and column values
 
         Args:
             action (int): action
@@ -299,25 +292,10 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         assert 0 <= col < BOARD_SIZE
         return [row, col]
 
-    def render(self, render_mode="rgb_array") -> np.ndarray:
+    def render(self) -> np.ndarray:
         """Render the board
-        Print a string that shows the current board, if render_mode == human,
         Return the RGB array of a figure which shows the current board.
         """
-        board = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=str)
-        for ii in range(BOARD_SIZE):
-            for jj in range(BOARD_SIZE):
-                if self.board[ii, jj] == 0:
-                    board[ii, jj] = "-"
-                elif self.board[ii, jj] == 1:
-                    board[ii, jj] = "X"
-                elif self.board[ii, jj] == 2:
-                    board[ii, jj] = "O"
-
-        if render_mode == "human":
-            board = tabulate(board, tablefmt="fancy_grid")
-            print(board)
-            print("\n")
 
         width = height = 400
 

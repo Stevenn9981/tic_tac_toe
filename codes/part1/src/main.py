@@ -22,12 +22,12 @@ from tf_agents.utils import common
 
 def show_random_policy():
     """
-        Create a video (named random-agent-part1.mp4) that records how a random policy plays the game
+        Create a video (named RandomPlay_Part1.mp4 in videos folder) that records how a random policy plays the game
     """
     py_env = TicTacToeEnv1()
     tf_env = tf_py_environment.TFPyEnvironment(py_env)
     random_policy = create_random_policy(tf_env)
-    create_policy_eval_video(tf_env, random_policy, "random-agent-part1")
+    create_policy_eval_video(tf_env, random_policy, "RandomPlay_Part1")
 
 
 def observation_and_action_constraint_splitter(obs):

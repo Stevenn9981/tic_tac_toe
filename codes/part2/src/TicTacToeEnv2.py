@@ -22,10 +22,8 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
     """
 
     def __init__(self) -> None:
-        """This class contains a TicTacToe environment for Part 2
-
-        Args:
-            train (bool): whether this is an environment for training.
+        """
+            This class contains a TicTacToe environment for Part 2
         """
 
         self.ener_bin_len = 0.2
@@ -67,7 +65,6 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
         # 0 means not finished, 1 or 2 means the winner and 3 means draw
         self.result = 0
 
-        # return self.decompose_board_to_state()
         observations_and_legal_moves = {'state': self.decompose_board_to_state(),
                                         'legal_moves': self.info["legal_moves"]}
         return ts.restart(observations_and_legal_moves)
@@ -121,10 +118,7 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
           position (int): integer between [0, 80], each representing a field on the board
 
         Returns:
-          state (np.array): state of 2 players' history, 0 means no stone, 1 means stones placed by the corresponding player (shape: 9x9x2).
-          reward (int): reward of the currrent step
-          done (boolean): true, if the game is finished
-          (dict): empty dict for future game related information
+          A TimeStep instance consisting of the next state, reward, and legal move constraints.
         """
         position = int(position)
         if not (0 <= position < self.n_actions):
@@ -166,23 +160,23 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
             position = row * BOARD_SIZE + col
             num_places = BOARD_SIZE * BOARD_SIZE
 
-            self.latest_action = int(position + energy_to_use / self.ener_bin_len * num_places)
+            self.latest_action = position + ener * num_places
             for i in range(self.num_bin):
                 action = position + i * num_places
                 self.info["Occupied"].add(action)
                 self.info['legal_moves'][action] = False
         elif self.latest_action:
             r, c, _ = self.decode_action(self.latest_action)
-            self.latest_action = int(r * BOARD_SIZE + c + energy_to_use / self.ener_bin_len * BOARD_SIZE * BOARD_SIZE)
+            self.latest_action = int(r * BOARD_SIZE + c + ener * BOARD_SIZE * BOARD_SIZE)
 
         if win:
             self.result = self.current_player
             reward += REWARD_WIN
-        elif len(self.info["Occupied"]) == BOARD_SIZE * BOARD_SIZE:  # Draw
+        elif len(self.info["Occupied"]) == BOARD_SIZE * BOARD_SIZE * self.num_bin:  # Draw
             self.result = 3
             reward += REWARD_DRAW
 
-        done = (win or len(self.info["Occupied"]) == BOARD_SIZE * BOARD_SIZE)
+        done = (win or len(self.info["Occupied"]) == BOARD_SIZE * BOARD_SIZE * self.num_bin)
         self.current_player = self.current_player + 1 if self.current_player == 1 else 1
         state = self.decompose_board_to_state()
 
@@ -273,7 +267,7 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
         return row, col
 
     def _is_win(self, r: int, c: int) -> bool:
-        """check if this player results in a winner
+        """check if this move results in a winner
 
         Args:
             r (int): row of the current play
@@ -300,16 +294,13 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
         return False
 
     def decode_action(self, action: int) -> List[int]:
-        """decode the action integer into a colum and row value
-
-        0 = upper left corner
-        8 = lower right corner
+        """decode the action integer into the row, column and energy values
 
         Args:
             action (int): action
 
         Returns:
-            List[int, int]: a list with the [row, col] values
+            List[int, int]: a list with the [row, col, energy] values
         """
         action = np.clip(action, 0, self.n_actions)
 
@@ -325,25 +316,10 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
         assert 0 <= energy < self.num_bin
         return [row, col, energy]
 
-    def render(self, render_mode="rgb_array") -> np.ndarray:
+    def render(self) -> np.ndarray:
         """Render the board
-        Print a string that shows the current board, if render_mode == human,
         Return the RGB array of a figure which shows the current board.
         """
-        board = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=str)
-        for ii in range(BOARD_SIZE):
-            for jj in range(BOARD_SIZE):
-                if self.board[ii, jj] == 0:
-                    board[ii, jj] = "-"
-                elif self.board[ii, jj] == 1:
-                    board[ii, jj] = "X"
-                elif self.board[ii, jj] == 2:
-                    board[ii, jj] = "O"
-
-        if render_mode == "human":
-            board = tabulate(board, tablefmt="fancy_grid")
-            print(board)
-            print("\n")
 
         width = height = 400
 

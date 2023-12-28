@@ -23,7 +23,7 @@ def embed_mp4(filename):
     return IPython.display.HTML(tag)
 
 
-def create_policy_eval_video(eval_env, policy, filename, fps=2):
+def create_policy_eval_video(eval_env, policy, filename, fps=1):
     """
         Create an mp4 file that records the policy self-play.
         Args:
@@ -33,7 +33,9 @@ def create_policy_eval_video(eval_env, policy, filename, fps=2):
     """
     py_env = eval_env._envs[0]
     tf_env = eval_env
-    filename = filename + ".mp4"
+    filename = 'videos/' + filename + ".mp4"
+    if not os.path.exists('videos'):
+        os.makedirs('videos')
     with imageio.get_writer(filename, fps=fps) as video:
         time_step = tf_env.reset()
         video.append_data(py_env.render())
@@ -45,7 +47,7 @@ def create_policy_eval_video(eval_env, policy, filename, fps=2):
     return embed_mp4(filename)
 
 
-def create_policy_battle_video(eval_env, policy1, policy2, filename, fps=2):
+def create_policy_battle_video(eval_env, policy1, policy2, filename, fps=1):
     """
         Create an mp4 file that records a match between two policies.
         Args:

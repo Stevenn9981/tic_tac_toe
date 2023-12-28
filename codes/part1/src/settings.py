@@ -1,4 +1,4 @@
-num_iterations = 800  # @param {type:"integer"}
+num_iterations = 1000  # @param {type:"integer"}
 
 initial_collect_steps = 100  # @param {type:"integer"}
 initial_collect_episodes = 5  # @param {type:"integer"}
@@ -10,8 +10,8 @@ batch_size = 128  # @param {type:"integer"}
 learning_rate = 2e-4  # @param {type:"number"}
 log_interval = 5  # @param {type:"integer"}
 
-num_eval_episodes = 50  # @param {type:"integer"}
-num_test_episodes = 500  # @param {type:"integer"}
+num_eval_episodes = 100  # @param {type:"integer"}
+num_test_episodes = 1000  # @param {type:"integer"}
 eval_interval = 20  # @param {type:"integer"}
 
 gamma = 0  # @param {type:"number"}
