@@ -3,6 +3,7 @@ import imageio
 import IPython
 import shutil
 import os
+import tensorflow as tf
 from tf_agents.trajectories import trajectory
 
 
@@ -142,14 +143,17 @@ def collect_episode(environment, agent1, agent2, replay_buffer):
     # Modify the reward of each step according to the opponent's next step
     if len(trajs_1) == len(trajs_2):  # Player 2 won
         for i in range(len(trajs_1) - 1):
-            trajs_1[i] = trajs_1[i].replace(reward=trajs_1[i].reward - trajs_2[i].reward)
-            trajs_2[i] = trajs_2[i].replace(reward=trajs_2[i].reward - trajs_1[i + 1].reward)
-        trajs_1[-1] = trajs_1[-1].replace(reward=trajs_1[-1].reward - trajs_2[-1].reward)
+            # This is to modify the reward of the previous step. For example, if player 2 got an active_two, the
+            # reward of the previous step of player 1 will decrease by REWARD_ACTIVE_TWO. tf.math.round is used
+            # to ignore the REWARD_NON_ADJ here.
+            trajs_1[i] = trajs_1[i].replace(reward=trajs_1[i].reward - tf.math.round(trajs_2[i].reward))
+            trajs_2[i] = trajs_2[i].replace(reward=trajs_2[i].reward - tf.math.round(trajs_1[i + 1].reward))
+        trajs_1[-1] = trajs_1[-1].replace(reward=trajs_1[-1].reward - tf.math.round(trajs_2[-1].reward))
     else:  # Player 1 won
         change_flag = True
         for i in range(len(trajs_1) - 1):
-            trajs_1[i] = trajs_1[i].replace(reward=trajs_1[i].reward - trajs_2[i].reward)
-            trajs_2[i] = trajs_2[i].replace(reward=trajs_2[i].reward - trajs_1[i + 1].reward)
+            trajs_1[i] = trajs_1[i].replace(reward=trajs_1[i].reward - tf.math.round(trajs_2[i].reward))
+            trajs_2[i] = trajs_2[i].replace(reward=trajs_2[i].reward - tf.math.round(trajs_1[i + 1].reward))
 
     for i in range(len(trajs_1)):
         replay_buffer.add_batch(trajs_1[i])

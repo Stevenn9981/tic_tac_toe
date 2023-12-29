@@ -127,7 +127,7 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         # If the agent/player does not choose an empty square, raise the ValueError.
         if self.board[row, col] != 0:
             if len(self.info["Occupied"]) == BOARD_SIZE * BOARD_SIZE:
-                raise ValueError('BORAD IS FULL!')
+                raise ValueError('BOARD IS FULL!')
             raise ValueError('ERROR: Not A LEGAL MOVE (NOT EMPTY)')
 
         # According to the game rules, randomly select an adjacent position with a probability of 1/16.
@@ -136,8 +136,8 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
             if random.random() < 0.5:
                 row, col = self.choose_adj_pos(row, col)
 
-        # if len(self.info["Occupied"]) != 0 and not self.if_chess_nearby(row, col):
-        #     reward += REWARD_NON_ADJ
+        if len(self.info["Occupied"]) != 0 and not self.if_chess_nearby(row, col):
+            reward += REWARD_NON_ADJ
 
         win = False
         if 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE and self.board[row, col] == 0:
@@ -160,7 +160,6 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
             reward += REWARD_WIN
         elif len(self.info["Occupied"]) == BOARD_SIZE * BOARD_SIZE:  # Draw
             self.result = 3
-            reward += REWARD_DRAW
 
         done = (win or len(self.info["Occupied"]) == BOARD_SIZE * BOARD_SIZE)
         self.current_player = self.current_player + 1 if self.current_player == 1 else 1

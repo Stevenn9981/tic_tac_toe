@@ -20,14 +20,13 @@ fc_layer_params = (100,)
 
 BOARD_SIZE = 9  # @param {type:"integer"}
 
-REWARD_DRAW = 0  # @param {type:"number"}
 REWARD_ALIVE = 0  # @param {type:"number"}
-REWARD_NON_ADJ = -0.03  # @param {type:"number"}
+REWARD_NON_ADJ = -0.3  # @param {type:"number"}
 
 # '_' means empty position, 'O' and 'X' means two players.
-REWARD_ACTIVE_TWO = 0.1  # @param {type:"number"} _OO_ or _XX_, we call it active_two
-REWARD_NONACT_THREE = 0.3  # @param {type:"number"} _OOOX or _XXXO or XOOO_ or OXXX_, we call it non_active_three
-REWARD_ACTIVE_THREE = 0.9  # @param {type:"number"} _OOO_ or _XXX_, we call it active_three
-REWARD_WIN = 3  # @param {type:"number"} _OOOO_ or _XXXX_
+REWARD_ACTIVE_TWO = 1  # @param {type:"number"} _OO_ or _XX_, we call it active_two
+REWARD_NONACT_THREE = 3  # @param {type:"number"} _OOOX or _XXXO or XOOO_ or OXXX_, we call it non_active_three
+REWARD_ACTIVE_THREE = 9  # @param {type:"number"} _OOO_ or _XXX_, we call it active_three
+REWARD_WIN = 30  # @param {type:"number"} _OOOO_ or _XXXX_
 
 tempdir = "codes"

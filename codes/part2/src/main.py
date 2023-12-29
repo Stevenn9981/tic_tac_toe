@@ -217,7 +217,7 @@ def test_game_agent():
     win_rate_1 = compute_avg_win_battle(eval_env, play_policy, random_policy, num_test_episodes)[0]
     win_rate_2 = compute_avg_win_battle(eval_env, random_policy, play_policy, num_test_episodes)[1]
     print(f'Play {num_test_episodes} rounds against the random policy as first and second hand, separately:')
-    print(f'Win rate as the first hand: {win_rate_1:.2f}, Win rate as the second hand: {win_rate_2:.2f}')
+    print(f'Win rate as the first hand: {win_rate_1 * 100:.1f}%, Win rate as the second hand: {win_rate_2 * 100:.1f}*')
 
     create_policy_battle_video(eval_env, play_policy, random_policy, 'TrainedAgent2-vs-Random')
     create_policy_battle_video(eval_env, random_policy, play_policy, 'Random-vs-TrainedAgent2')
