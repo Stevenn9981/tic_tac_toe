@@ -60,6 +60,7 @@ class PlayPolicy():
         """
         if env:
             py_env = env._envs[0]
+            # Make sure there are enough stones on the board to result in a winner
             if np.sum(py_env.board) > 2:
                 current_player = py_env.current_player
                 opponent = current_player + 1 if current_player == 1 else 1

@@ -1,10 +1,12 @@
+import pdb
 import unittest
 
 from tf_agents.environments import tf_py_environment
+from tf_agents.replay_buffers import tf_uniform_replay_buffer
 
 from codes.part1.src.PlayPolicy import drop_here_will_win, PlayPolicy
 from codes.part1.src.TicTacToeEnv1 import *
-from codes.part1.src.main import create_random_policy
+from codes.part1.src.main import create_random_policy, create_dqn_agent, collect_episode
 
 
 class TestPart1(unittest.TestCase):
