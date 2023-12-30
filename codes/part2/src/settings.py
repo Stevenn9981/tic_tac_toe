@@ -1,4 +1,4 @@
-num_iterations = 1500  # @param {type:"integer"}
+num_iterations = 1200  # @param {type:"integer"}
 
 initial_collect_steps = 100  # @param {type:"integer"}
 initial_collect_episodes = 5  # @param {type:"integer"}
