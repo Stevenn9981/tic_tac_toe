@@ -86,11 +86,11 @@ def compute_avg_win_battle(environment, policy1, policy2, num_episodes=10):
             policy2: the second-hand player
             num_episodes (int): the number of matches
         Return:
-            avg_return_1: win rate of policy 1
-            avg_return_2: win rate of policy 2
+            avg_win_1: win rate of policy 1
+            avg_win_2: win rate of policy 2
     """
-    total_return_1 = 0.0
-    total_return_2 = 0.0
+    total_win_1 = 0.0
+    total_win_2 = 0.0
     for _ in range(num_episodes):
         time_step = environment.reset()
         while not time_step.is_last():
@@ -100,13 +100,13 @@ def compute_avg_win_battle(environment, policy1, policy2, num_episodes=10):
                 action_step = policy2.action(time_step)
                 time_step = environment.step(action_step.action)
         if environment._envs[0].get_result() == 1:
-            total_return_1 += 1
+            total_win_1 += 1
         elif environment._envs[0].get_result() == 2:
-            total_return_2 += 1
+            total_win_2 += 1
 
-    avg_return_1 = total_return_1 / num_episodes
-    avg_return_2 = total_return_2 / num_episodes
-    return [avg_return_1, avg_return_2]
+    avg_win_1 = total_win_1 / num_episodes
+    avg_win_2 = total_win_2 / num_episodes
+    return [avg_win_1, avg_win_2]
 
 
 def collect_episode(environment, agent1, agent2, replay_buffer):

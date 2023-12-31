@@ -227,6 +227,6 @@ def test_game_agent():
 
 if __name__ == '__main__':
     # show_random_policy()
-    if len(sys.argv) == 1 or sys.argv[1] == 'use_pretrain':
+    if len(sys.argv) == 1 or sys.argv[1] != 'use_pretrain':
         train_game_agent()
     test_game_agent()
