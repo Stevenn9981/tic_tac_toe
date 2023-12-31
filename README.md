@@ -29,6 +29,13 @@ python codes/part1/src/main.py
 python codes/part2/src/main.py
 ```
 
+If you want to skip the training process and use the pre-trained model to conduct evaluation, use the following scripts:
+
+```shell
+python codes/part1/src/main.py use_pretrain
+python codes/part2/src/main.py use_pretrain
+```
+
 To run the tests, use the following scripts:
 
 ```shell

@@ -96,6 +96,7 @@ def create_dqn_agent(train_env):
         train_env.time_step_spec(),
         train_env.action_spec(),
         q_network=q_net,
+        n_step_update=n_step_update,
         gamma=gamma,
         observation_and_action_constraint_splitter=observation_and_action_constraint_splitter,
         optimizer=optimizer,
@@ -226,5 +227,6 @@ def test_game_agent():
 
 if __name__ == '__main__':
     # show_random_policy()
-    train_game_agent()
+    if len(sys.argv) > 1 and sys.argv[1] != 'use_pretrain':
+        train_game_agent()
     test_game_agent()
