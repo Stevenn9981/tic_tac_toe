@@ -156,10 +156,11 @@ def train_game_agent():
 
     # Reset the train step.
     agent.train_step_counter.assign(0)
-    policy_win_rate = compute_avg_win_battle(eval_env, play_policy, random_policy, num_eval_episodes)[0]
-    print('Before training: 1_win = {0}'.format(policy_win_rate))
+    win1 = compute_avg_win_battle(eval_env, play_policy, random_policy, num_eval_episodes)[0]
+    win2 = compute_avg_win_battle(eval_env, random_policy, play_policy, num_eval_episodes)[1]
+    print('Evaluation before training: offense_win = {0}, defense_win = {1}'.format(win1, win2))
 
-    bst = 0
+    bst = 0  # store the value of best-so-far win rate
 
     # Reset the environment.
     train_env.reset()
@@ -189,7 +190,6 @@ def train_game_agent():
             if policy_win_rate >= bst:
                 bst = policy_win_rate
                 tf_policy_saver.save(policy_dir)
-                # create_zip_file(policy_dir, os.path.join(tempdir, 'part1/exported_policy_part1'))
 
 
 def test_game_agent():

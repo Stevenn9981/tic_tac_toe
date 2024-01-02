@@ -1,7 +1,6 @@
 import base64
 import imageio
 import IPython
-import shutil
 import os
 import tensorflow as tf
 from tf_agents.trajectories import trajectory
@@ -118,7 +117,7 @@ def collect_episode(env, agent1, agent2, replay_buffer):
         Two RL agents against each other for a match.
         Use a replay buffer to record the data of the two agents for training.
         Args:
-            env: the game env
+            env: the game environment
             agent1: the first-hand player
             agent2: the second-hand player
             replay_buffer: the replay_buffer used to record the training data
@@ -128,18 +127,14 @@ def collect_episode(env, agent1, agent2, replay_buffer):
     trajs_1, trajs_2 = [], []
 
     while not time_step.is_last():
-        action_step = agent1.action(time_step, env) if isinstance(agent1,
-                                                                  PlayPolicy) else agent1.collect_policy.action(
-            time_step)
+        action_step = agent1.collect_policy.action(time_step)
         next_time_step = env.step(action_step.action)
         traj1 = trajectory.from_transition(time_step, action_step, next_time_step)
         trajs_1.append(traj1)
         time_step = next_time_step
 
         if not time_step.is_last():
-            action_step = agent2.action(time_step, env) if isinstance(agent2,
-                                                                      PlayPolicy) else agent2.collect_policy.action(
-                time_step)
+            action_step = agent2.collect_policy.action(time_step)
             next_time_step = env.step(action_step.action)
             traj2 = trajectory.from_transition(time_step, action_step, next_time_step)
             trajs_2.append(traj2)
@@ -163,6 +158,3 @@ def collect_episode(env, agent1, agent2, replay_buffer):
         replay_buffer.add_batch(trajs_1[i])
     for i in range(len(trajs_2)):
         replay_buffer.add_batch(trajs_2[i])
-
-# def create_zip_file(dirname, base_filename):
-#     return shutil.make_archive(base_filename, 'zip', dirname)

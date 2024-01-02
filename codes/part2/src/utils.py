@@ -1,7 +1,6 @@
 import base64
 import imageio
 import IPython
-import shutil
 import os
 import tensorflow as tf
 from tf_agents.trajectories import trajectory
@@ -113,34 +112,30 @@ def compute_avg_win_battle(env, policy1, policy2, num_episodes=10):
     return [avg_win_1, avg_win_2]
 
 
-def collect_episode(environment, agent1, agent2, replay_buffer):
+def collect_episode(env, agent1, agent2, replay_buffer):
     """
         Two RL agents against each other for a match.
         Use a replay buffer to record the data of the two agents for training.
         Args:
-            environment: the game environment
+            env: the game environment
             agent1: the first-hand player
             agent2: the second-hand player
             replay_buffer: the replay_buffer used to record the training data
     """
 
-    time_step = environment.reset()
+    time_step = env.reset()
     trajs_1, trajs_2 = [], []
 
     while not time_step.is_last():
-        action_step = agent1.action(time_step, environment) if isinstance(agent1,
-                                                                          PlayPolicy) else agent1.collect_policy.action(
-            time_step)
-        next_time_step = environment.step(action_step.action)
+        action_step = agent1.collect_policy.action(time_step)
+        next_time_step = env.step(action_step.action)
         traj1 = trajectory.from_transition(time_step, action_step, next_time_step)
         trajs_1.append(traj1)
         time_step = next_time_step
 
         if not time_step.is_last():
-            action_step = agent2.action(time_step, environment) if isinstance(agent2,
-                                                                              PlayPolicy) else agent2.collect_policy.action(
-                time_step)
-            next_time_step = environment.step(action_step.action)
+            action_step = agent2.collect_policy.action(time_step)
+            next_time_step = env.step(action_step.action)
             traj2 = trajectory.from_transition(time_step, action_step, next_time_step)
             trajs_2.append(traj2)
             time_step = next_time_step
@@ -163,6 +158,3 @@ def collect_episode(environment, agent1, agent2, replay_buffer):
         replay_buffer.add_batch(trajs_1[i])
     for i in range(len(trajs_2)):
         replay_buffer.add_batch(trajs_2[i])
-
-# def create_zip_file(dirname, base_filename):
-#     return shutil.make_archive(base_filename, 'zip', dirname)
