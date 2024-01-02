@@ -130,19 +130,18 @@ def train_game_agent():
     train_env = tf_py_environment.TFPyEnvironment(train_py_env)
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
 
-    agent1 = create_dqn_agent(train_env)
-    agent2 = create_dqn_agent(train_env)
+    agent = create_dqn_agent(train_env)
 
-    play_policy = PlayPolicy(agent1.policy)
+    play_policy = PlayPolicy(agent.policy)
     random_policy = create_random_policy(train_env)
 
     replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
-        data_spec=agent1.collect_data_spec,
+        data_spec=agent.collect_data_spec,
         batch_size=train_env.batch_size,
         max_length=replay_buffer_max_length)
 
     for _ in range(initial_collect_episodes):
-        collect_episode(train_env, agent1, agent2, replay_buffer)
+        collect_episode(train_env, agent, agent, replay_buffer)
 
     dataset = replay_buffer.as_dataset(
         num_parallel_calls=3, sample_batch_size=batch_size,
@@ -153,12 +152,10 @@ def train_game_agent():
     tf_policy_saver = policy_saver.PolicySaver(play_policy.policy)
 
     # (Optional) Optimize by wrapping some of the code in a graph using TF function.
-    agent1.train = common.function(agent1.train)
-    agent2.train = common.function(agent2.train)
+    agent.train = common.function(agent.train)
 
     # Reset the train step.
-    agent1.train_step_counter.assign(0)
-    agent2.train_step_counter.assign(0)
+    agent.train_step_counter.assign(0)
     policy_win_rate = compute_avg_win_battle(eval_env, play_policy, random_policy, num_eval_episodes)[0]
     print('Before training: 1_win = {0}'.format(policy_win_rate))
 
@@ -167,24 +164,19 @@ def train_game_agent():
     # Reset the environment.
     train_env.reset()
 
-    x, y, change_flag = agent1, agent2, False
     for idx in range(num_iterations):
         # Collect a few episodes using collect_policy and store the transitions to the replay buffer.
         for _ in range(collect_episodes_per_iteration):
-            if change_flag:
-                x, y = y, x
-            change_flag = collect_episode(train_env, x, y, replay_buffer)
+            collect_episode(train_env, agent, agent, replay_buffer)
 
         # Sample a batch of data from the buffer and update the agent's network.
         experience, unused_info = next(iterator)
-        train_loss1 = agent1.train(experience).loss
-        experience, unused_info = next(iterator)
-        agent2.train(experience)
+        train_loss = agent.train(experience).loss
 
-        step = agent1.train_step_counter.numpy()
+        step = agent.train_step_counter.numpy()
 
         if step % log_interval == 0:
-            print('step = {0}: loss1 = {1}'.format(step, train_loss1))
+            print('step = {0}: loss1 = {1}'.format(step, train_loss))
 
         if step % eval_interval == 0:
             policy_win_rate1 = compute_avg_win_battle(eval_env, play_policy, random_policy, num_eval_episodes)[0]

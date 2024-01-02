@@ -6,6 +6,8 @@ import os
 import tensorflow as tf
 from tf_agents.trajectories import trajectory
 
+from codes.part2.src.PlayPolicy import PlayPolicy
+
 
 def embed_mp4(filename):
     """
@@ -77,11 +79,11 @@ def create_policy_battle_video(eval_env, policy1, policy2, filename, fps=1):
     return embed_mp4(filename)
 
 
-def compute_avg_win_battle(environment, policy1, policy2, num_episodes=10):
+def compute_avg_win_battle(env, policy1, policy2, num_episodes=10):
     """
         Two policies against each other for {num_episodes} matches. Calculate the win rates of the two policies.
         Args:
-            environment: the game environment
+            env: the game environment
             policy1: the first-hand player
             policy2: the second-hand player
             num_episodes (int): the number of matches
@@ -92,16 +94,18 @@ def compute_avg_win_battle(environment, policy1, policy2, num_episodes=10):
     total_win_1 = 0.0
     total_win_2 = 0.0
     for _ in range(num_episodes):
-        time_step = environment.reset()
+        time_step = env.reset()
         while not time_step.is_last():
-            action_step = policy1.action(time_step)
-            time_step = environment.step(action_step.action)
+            action_step = policy1.action(time_step, env) if isinstance(policy1, PlayPolicy) else policy1.action(
+                time_step)
+            time_step = env.step(action_step.action)
             if not time_step.is_last():
-                action_step = policy2.action(time_step)
-                time_step = environment.step(action_step.action)
-        if environment._envs[0].get_result() == 1:
+                action_step = policy2.action(time_step, env) if isinstance(policy2, PlayPolicy) else policy2.action(
+                    time_step)
+                time_step = env.step(action_step.action)
+        if env._envs[0].get_result() == 1:
             total_win_1 += 1
-        elif environment._envs[0].get_result() == 2:
+        elif env._envs[0].get_result() == 2:
             total_win_2 += 1
 
     avg_win_1 = total_win_1 / num_episodes
@@ -118,28 +122,29 @@ def collect_episode(environment, agent1, agent2, replay_buffer):
             agent1: the first-hand player
             agent2: the second-hand player
             replay_buffer: the replay_buffer used to record the training data
-        Return:
-            change_flag (bool): Whether to swap the order in the next match. If the first player wins, then change.
     """
 
     time_step = environment.reset()
     trajs_1, trajs_2 = [], []
 
     while not time_step.is_last():
-        action_step = agent1.collect_policy.action(time_step)
+        action_step = agent1.action(time_step, environment) if isinstance(agent1,
+                                                                          PlayPolicy) else agent1.collect_policy.action(
+            time_step)
         next_time_step = environment.step(action_step.action)
         traj1 = trajectory.from_transition(time_step, action_step, next_time_step)
         trajs_1.append(traj1)
         time_step = next_time_step
 
         if not time_step.is_last():
-            action_step = agent2.collect_policy.action(time_step)
+            action_step = agent2.action(time_step, environment) if isinstance(agent2,
+                                                                              PlayPolicy) else agent2.collect_policy.action(
+                time_step)
             next_time_step = environment.step(action_step.action)
             traj2 = trajectory.from_transition(time_step, action_step, next_time_step)
             trajs_2.append(traj2)
             time_step = next_time_step
 
-    change_flag = False
     # Modify the reward of each step according to the opponent's next step
     if len(trajs_1) == len(trajs_2):  # Player 2 won
         for i in range(len(trajs_1) - 1):
@@ -150,7 +155,6 @@ def collect_episode(environment, agent1, agent2, replay_buffer):
             trajs_2[i] = trajs_2[i].replace(reward=trajs_2[i].reward - tf.math.round(trajs_1[i + 1].reward))
         trajs_1[-1] = trajs_1[-1].replace(reward=trajs_1[-1].reward - tf.math.round(trajs_2[-1].reward))
     else:  # Player 1 won
-        change_flag = True
         for i in range(len(trajs_1) - 1):
             trajs_1[i] = trajs_1[i].replace(reward=trajs_1[i].reward - tf.math.round(trajs_2[i].reward))
             trajs_2[i] = trajs_2[i].replace(reward=trajs_2[i].reward - tf.math.round(trajs_1[i + 1].reward))
@@ -159,10 +163,6 @@ def collect_episode(environment, agent1, agent2, replay_buffer):
         replay_buffer.add_batch(trajs_1[i])
     for i in range(len(trajs_2)):
         replay_buffer.add_batch(trajs_2[i])
-
-    # If the first player wins, then change the order in the next game.
-    return change_flag
-
 
 # def create_zip_file(dirname, base_filename):
 #     return shutil.make_archive(base_filename, 'zip', dirname)
