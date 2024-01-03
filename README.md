@@ -46,6 +46,6 @@ python -m unittest codes/part2/test_part2.py
 
 Besides, for your convenience, a Jupyter Notebook version is also provided so that you can also run the codes in Google Colab.
 
-Part1: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg "Open in Colab")](https://colab.research.google.com/github/Stevenn9981/tic_tac_toe/blob/master/tic_tac_toe_part1.ipynb)
+Part1: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg "Open in Colab")](https://colab.research.google.com/drive/1ix4_b3dvhbbdneNgnmJnbEb2epv6KD1M?usp=sharing)
 
-Part2: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg "Open in Colab")](https://colab.research.google.com/github/Stevenn9981/tic_tac_toe/blob/master/tic_tac_toe_part2.ipynb)
+Part2: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg "Open in Colab")](https://colab.research.google.com/drive/1t2xRSSG9HqOaWbu9kXdAL1TBMusjjzve?usp=sharing)

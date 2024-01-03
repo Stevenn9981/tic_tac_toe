@@ -2,13 +2,13 @@ import sys
 
 sys.path.append('.')
 
-from codes.part1.src.PlayPolicy import PlayPolicy
 from codes.part1.src.TicTacToeEnv1 import TicTacToeEnv1
 from codes.part1.src.settings import *
 from codes.part1.src.utils import *
 
 import os
 import tensorflow as tf
+import random
 
 from tf_agents.agents.dqn import dqn_agent
 from tf_agents.environments import tf_py_environment
@@ -132,7 +132,8 @@ def train_game_agent():
 
     agent = create_dqn_agent(train_env)
 
-    play_policy = PlayPolicy(agent.policy)
+    # play_policy = PlayPolicy(agent.policy)
+    play_policy = agent.policy
     random_policy = create_random_policy(train_env)
 
     replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
@@ -149,7 +150,8 @@ def train_game_agent():
     iterator = iter(dataset)
 
     policy_dir = os.path.join(tempdir, 'part1/pretrained_policy_part1')
-    tf_policy_saver = policy_saver.PolicySaver(play_policy.policy)
+    # tf_policy_saver = policy_saver.PolicySaver(play_policy.policy)
+    tf_policy_saver = policy_saver.PolicySaver(play_policy)
 
     # (Optional) Optimize by wrapping some of the code in a graph using TF function.
     agent.train = common.function(agent.train)

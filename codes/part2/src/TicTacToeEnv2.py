@@ -187,11 +187,11 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
             return ts.transition(observations_and_legal_moves, reward)
 
     def detect_alive_two(self, row: int, col: int) -> int:
-        """ Detect how many alive_two can obtain by this play out.
+        """ Detect how many alive_two (i.e., open-at-two-ends 2-in-a-row) can obtain by this play out.
 
         Args:
-            row (int): row of the current play
-            col (int): column of the current play
+            row (int): row of the position to be placed
+            col (int): column of the position to be placed
 
         Returns:
             cnt (int): the number of alive_two
@@ -208,11 +208,12 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
         return cnt
 
     def detect_three(self, r: int, c: int) -> tuple:
-        """ Detect how many non_active_three and active_three can obtain by this play out.
+        """ Detect how many non_active_three (i.e., open-at-one-end 3-in-a-row) and
+            active_three (i.e., open-at-two-ends 3-in-a-row) can obtain by this play out.
 
         Args:
-            r (int): row of the current play
-            c (int): column of the current play
+            r (int): row of the position to be placed
+            c (int): column of the position to be placed
 
         Returns:
             cnt_non_act (int): the number of non_active_three
@@ -273,7 +274,7 @@ class TicTacToeEnv2(py_environment.PyEnvironment):
             c (int): column of the current play
 
         Returns:
-            bool: indicating if there is a winner
+            (bool): indicating if there is a winner
         """
 
         # check if four equal stones are aligned (horizontal, vertical or diagonal)
