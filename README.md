@@ -44,7 +44,7 @@ python -m unittest codes/part2/test_part2.py
 ```
 
 
-Besides, for your convenience, a Jupyter Notebook version is also provided so that you can also run the codes in Google Colab.
+Besides, for your convenience, a Jupyter Notebook version is also provided so that you can also conduct model training and evaluation in Google Colab.
 
 Part1: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg "Open in Colab")](https://colab.research.google.com/drive/1ix4_b3dvhbbdneNgnmJnbEb2epv6KD1M?usp=sharing)
 
