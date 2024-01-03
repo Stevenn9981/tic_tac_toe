@@ -90,7 +90,7 @@ class TicTacToeEnv1(py_environment.PyEnvironment):
         The first layer is the opponent's play history, 0 means no stone, 1 means stones placed by the opponent.
         The second layer is the current player's history, 0 means no stone, 1 means stones placed by the current player.
         The third layer is the opponent's latest play-out; only one entry is 1 and the others are 0. If the board is empty now, all entries are 0.
-        The fourth layer is whether the current player is the first hand. an array that is full of 1 means yes, and 0 means no.
+        The fourth layer is whether the current player is the first player. an array that is full of 1 means yes, and 0 means no.
         The fifth layer shows the empty positions whose adjacent positions are not all empty. 1 means there is at least one chess piece in its adjacent positions, and 0 means no.
         """
         opponent = 2 if self.current_player == 1 else 1

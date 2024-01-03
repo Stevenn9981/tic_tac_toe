@@ -54,8 +54,8 @@ def create_policy_battle_video(eval_env, policy1, policy2, filename, fps=2):
         Create an mp4 file that records a match between two policies.
         Args:
             eval_env: the game environment
-            policy1: the first-hand player
-            policy2: the second-hand player
+            policy1: the first player
+            policy2: the second player
             filename (str): the file name of the mp4 file that will be created
     """
     py_env = eval_env._envs[0]
@@ -83,8 +83,8 @@ def compute_avg_win_battle(env, policy1, policy2, num_episodes=10):
         Two policies against each other for {num_episodes} matches. Calculate the win rates of the two policies.
         Args:
             env: the game environment
-            policy1: the first-hand player
-            policy2: the second-hand player
+            policy1: the first player
+            policy2: the second player
             num_episodes (int): the number of matches
         Return:
             avg_win_1: win rate of policy 1
@@ -118,8 +118,8 @@ def collect_episode(env, agent1, agent2, replay_buffer):
         Use a replay buffer to record the data of the two agents for training.
         Args:
             env: the game environment
-            agent1: the first-hand player
-            agent2: the second-hand player
+            agent1: the first player
+            agent2: the second player
             replay_buffer: the replay_buffer used to record the training data
     """
 

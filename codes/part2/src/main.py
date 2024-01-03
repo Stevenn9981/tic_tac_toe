@@ -197,7 +197,7 @@ def train_game_agent():
 def test_game_agent():
     """
         Test the trained RL agent. We compared the trained RL agents with itself,
-        random policy (as first-hand and second-hand), respectively. Then calculate
+        random policy (as first-player and second-player), respectively. Then calculate
         the win rates of the trained RL agent in each scenario. Besides, we also
         generate videos to record the matches under each scenario to give a more
         intuitive view. All the videos are saved in the `videos` folder.
@@ -211,8 +211,8 @@ def test_game_agent():
 
     win_rate_1 = compute_avg_win_battle(eval_env, play_policy, random_policy, num_test_episodes)[0]
     win_rate_2 = compute_avg_win_battle(eval_env, random_policy, play_policy, num_test_episodes)[1]
-    print(f'Play {num_test_episodes} rounds against the random policy as first and second hand, separately:')
-    print(f'Win rate as the first hand: {win_rate_1 * 100:.1f}%, Win rate as the second hand: {win_rate_2 * 100:.1f}%')
+    print(f'Play {num_test_episodes} rounds against the random policy as first and second player, separately:')
+    print(f'Win rate as the first player: {win_rate_1 * 100:.1f}%, Win rate as the second player: {win_rate_2 * 100:.1f}%')
 
     create_policy_battle_video(eval_env, play_policy, random_policy, 'TrainedAgent2-vs-Random')
     create_policy_battle_video(eval_env, random_policy, play_policy, 'Random-vs-TrainedAgent2')
