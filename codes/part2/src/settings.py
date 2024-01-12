@@ -14,7 +14,7 @@ num_eval_episodes = 100  # @param {type:"integer"}
 num_test_episodes = 1000  # @param {type:"integer"}
 eval_interval = 20  # @param {type:"integer"}
 
-gamma = 0  # @param {type:"number"}
+gamma = 0.8  # @param {type:"number"}
 n_step_update = 1  # @param {type:"integer"}
 fc_layer_params = (100,)
 
