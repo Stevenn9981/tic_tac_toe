@@ -97,7 +97,6 @@ def create_dqn_agent(train_env):
         train_env.action_spec(),
         q_network=q_net,
         n_step_update=n_step_update,
-        gamma=gamma,
         observation_and_action_constraint_splitter=observation_and_action_constraint_splitter,
         optimizer=optimizer,
         td_errors_loss_fn=common.element_wise_squared_loss,
