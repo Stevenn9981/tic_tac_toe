@@ -132,7 +132,6 @@ def train_game_agent():
 
     agent = create_dqn_agent(train_env)
 
-    # play_policy = PlayPolicy(agent.policy)
     play_policy = agent.policy
     random_policy = create_random_policy(train_env)
 
@@ -150,7 +149,6 @@ def train_game_agent():
     iterator = iter(dataset)
 
     policy_dir = os.path.join(tempdir, 'part2/pretrained_policy_part2')
-    # tf_policy_saver = policy_saver.PolicySaver(play_policy.policy)
     tf_policy_saver = policy_saver.PolicySaver(play_policy)
 
     # (Optional) Optimize by wrapping some of the code in a graph using TF function.
