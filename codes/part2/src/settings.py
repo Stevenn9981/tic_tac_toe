@@ -1,4 +1,4 @@
-num_iterations = 1200  # @param {type:"integer"}
+num_iterations = 1000  # @param {type:"integer"}
 
 initial_collect_steps = 100  # @param {type:"integer"}
 initial_collect_episodes = 5  # @param {type:"integer"}
@@ -7,7 +7,7 @@ collect_episodes_per_iteration = 1  # @param {type:"integer"}
 replay_buffer_max_length = 10000  # @param {type:"integer"}
 
 batch_size = 512  # @param {type:"integer"}
-learning_rate = 2e-4  # @param {type:"number"}
+learning_rate = 5e-4  # @param {type:"number"}
 log_interval = 5  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}

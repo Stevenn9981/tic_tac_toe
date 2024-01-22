@@ -1,6 +1,6 @@
 ## RL for Tic-Tac-Toe Variant
 
-All codes, including both algorithms and tests, can be found in `codes` folder.
+All codes, including both algorithms and tests, are in `codes/` folder.
 
 Codes for part1 and part2 can be found in `codes/part1/` and `codes/part2/` folders, respectively.
 
@@ -22,7 +22,9 @@ pip install IPython
 
 Please make sure the above dependencies are installed before running codes.
 
-You can use the following commands to train the agents and evaluate (for part1 and part2, respectively):
+### Guidelines for running codes
+
+You can use the following commands to train the agents and evaluate them (for part1 and part2, respectively):
 
 ```shell
 python codes/part1/src/main.py 
